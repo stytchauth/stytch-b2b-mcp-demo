@@ -4,7 +4,7 @@ import { B2BProducts, AuthFlowType, B2BOAuthProviders } from '@stytch/vanilla-js
 
 const customFont = IBM_Plex_Sans({
   subsets: ['latin'],
-  weight: ['400', '500'],
+  weight: '400',
   style: 'normal',
 });
 
