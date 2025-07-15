@@ -4,7 +4,7 @@ import { B2BProducts, AuthFlowType, B2BOAuthProviders } from '@stytch/vanilla-js
 
 const customFont = IBM_Plex_Sans({
   subsets: ['latin'],
-  weight: '400',
+  weight: ['400', '500'],
   style: 'normal',
 });
 
@@ -109,39 +109,53 @@ export const adminPortalStyles = {
 }
 
 export const discoveryStyles = {
+  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', system-ui, sans-serif",
   container: {
-    width: '500px',
-    borderRadius: "32px"
+    width: '420px',
+    backgroundColor: "#ffffff",
+    borderColor: "#e9e9e7",
+    borderRadius: "16px",
+    boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.08)"
+  },
+  colors: {
+    primary: "#2d2d2d",
+    secondary: "#787774", 
+    success: "#22c55e",
+    error: "#f56565"
   },
   buttons: {
     primary: {
-      backgroundColor: "#5789f7",
-      textColor: "#FFFFFF",
-      borderColor: "#5789f7",
-      borderRadius: "9.6px"
+      backgroundColor: "#2d2d2d",
+      textColor: "#ffffff",
+      borderColor: "#2d2d2d",
+      borderRadius: "8px",
+      fontSize: "14px",
+      fontWeight: "500"
     },
     secondary: {
-      backgroundColor: "#FFFFFF",
-      textColor: "#1D1D1D",
-      borderColor: "#CECECE",
-      borderRadius: "9.6px"
+      backgroundColor: "#ffffff",
+      textColor: "#2d2d2d",
+      borderColor: "#e9e9e7",
+      borderRadius: "8px",
+      fontSize: "14px",
+      fontWeight: "500"
     }
   },
   inputs: {
-    borderColor: "#CECECE",
-    borderRadius: "4px",
-    textColor: "#1D1D1D",
-    placeholderColor: "#525151",
-    backgroundColor: "#FFFFFF"
-  },
-  fontFamily: customFont.style.fontFamily,
+    backgroundColor: "#ffffff",
+    textColor: "#2d2d2d",
+    placeholderColor: "#9b9a97",
+    borderColor: "#e9e9e7",
+    borderRadius: "8px",
+    fontSize: "14px"
+  }
 };
 
 export const customStrings = {
-  'login.title': '👋🏻 Welcome to Tavily!',
-  'button.continueWithEmail': 'Continue',
-  'button.createAnOrganization': 'Create team',
+  'login.title': '👋 Welcome to Notion',
+  'button.continueWithEmail': 'Continue with email',
+  'button.createAnOrganization': 'Create workspace',
   'methodDivider.text': 'OR',
-  'organizationDiscovery.title': 'Select a team to continue',
-  'formField.email.placeholder': 'Email address*',
+  'organizationDiscovery.title': 'Choose your workspace',
+  'formField.email.placeholder': 'Enter your email...',
 };
