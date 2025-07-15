@@ -20,18 +20,24 @@ const Login = () => {
 
   return (
     <div className="centered-login">
-      <StytchB2B
-      config={discoveryConfig}
-      styles={discoveryStyles}
-      strings={customStrings}
-      callbacks={{
-        onEvent: (event) => {
-          if (event.type === StytchEventType.AuthenticateFlowComplete) {
-            router.replace('/dashboard');
-          }
-        },
-      }}
-      />
+      <div className="login-container">
+        <div className="notion-header">
+          <h1 className="notion-title">Think it. Make it.</h1>
+          <p className="notion-subtitle">Log in to your Notely account</p>
+        </div>
+        <StytchB2B
+        config={discoveryConfig}
+        styles={discoveryStyles}
+        strings={customStrings}
+        callbacks={{
+          onEvent: (event) => {
+            if (event.type === StytchEventType.AuthenticateFlowComplete) {
+              router.replace('/dashboard');
+            }
+          },
+        }}
+        />
+      </div>
     </div>
   );
 };

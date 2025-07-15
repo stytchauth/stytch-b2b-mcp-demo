@@ -110,10 +110,11 @@ export const adminPortalStyles = {
 
 export const discoveryStyles = {
   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', system-ui, sans-serif",
+  hideHeaderText: true,
   container: {
     width: '420px',
     backgroundColor: "#ffffff",
-    borderColor: "#e9e9e7",
+    borderColor: "#ffffff",
     borderRadius: "16px",
     boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.08)"
   },
@@ -152,7 +153,6 @@ export const discoveryStyles = {
 };
 
 export const customStrings = {
-  'login.title': '👋 Welcome to Notion',
   'button.continueWithEmail': 'Continue with email',
   'button.createAnOrganization': 'Create workspace',
   'methodDivider.text': 'OR',
