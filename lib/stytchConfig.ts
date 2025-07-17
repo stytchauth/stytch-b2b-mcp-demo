@@ -69,6 +69,8 @@ export const adminPortalStyles = {
     borderColor: "rgba(55, 53, 47, 0.09)",
     borderRadius: "8px",
     boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.02)",
+    width: "1000px",
+    maxWidth: "calc(100vw - 2rem)",
   },
   colors: {
     primary: "rgba(55, 53, 47, 1)",           // main text color

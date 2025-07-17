@@ -12,14 +12,11 @@ import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
 const Settings = () => {
 
   return (
-    <div>
+    <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Organization Settings</h1>
         <p className="page-subtitle">Manage your organization's configuration and preferences</p>
       </div>
-      <div className="admin-content-wrapper">
-        <AdminPortalOrgSettings config={adminPortalConfig} styles={adminPortalStyles} />
-      </div>
+      <AdminPortalOrgSettings config={adminPortalConfig} styles={adminPortalStyles} />
     </div>
   );
 };

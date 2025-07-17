@@ -73,3 +73,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Page Layout Styles for Settings Pages */
+@layer components {
+  .page-header {
+    @apply mb-8 pb-6 border-b border-border;
+    max-width: 1200px;
+    width: 100%;
+  }
+
+  .page-title {
+    @apply text-3xl font-bold text-foreground mb-2;
+  }
+
+  .page-subtitle {
+    @apply text-base text-muted-foreground leading-relaxed;
+  }
+
+  .admin-content-wrapper {
+    @apply bg-card rounded-lg border border-border shadow-sm p-6;
+    max-width: 1200px;
+    width: 100%;
+    min-height: 500px;
+  }
+
+  /* Additional spacing for the main content container */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
