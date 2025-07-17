@@ -63,49 +63,55 @@ export const discoveryConfig = {
 };
 
 export const adminPortalStyles = {
-  fontFamily: "'Inter', 'IBM Plex Sans', Arial, sans-serif",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif",
   container: {
-    backgroundColor: "#fff",
-    borderColor: "#f1f1f1",
-    borderRadius: "18px",
+    backgroundColor: "#ffffff",
+    borderColor: "rgba(55, 53, 47, 0.09)",
+    borderRadius: "8px",
+    boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.02)",
   },
   colors: {
-    primary: "#222",             // main text color
-    secondary: "#222",        // main blue for accent text
+    primary: "rgba(55, 53, 47, 1)",           // main text color
+    secondary: "rgba(55, 53, 47, 0.8)",       // secondary text
     success: "#22c55e",
     error: "#ef4444",
-    accentText: "#222",
-    accent: "#e0e7ff",           // light blue accent
-    subtle: "#6b7280",
+    accentText: "#2383e2",                    // accent blue
+    accent: "rgba(35, 131, 226, 0.14)",       // light blue accent
+    subtle: "rgba(55, 53, 47, 0.6)",
   },
   buttons: {
     primary: {
-      backgroundColor: "#6366f1",
-      textColor: "#fff",
-      borderColor: "#6366f1",
-      borderRadius: "10px",
+      backgroundColor: "rgba(55, 53, 47, 1)",
+      textColor: "#ffffff",
+      borderColor: "rgba(55, 53, 47, 1)",
+      borderRadius: "6px",
+      fontSize: "14px",
+      fontWeight: "500",
     },
     secondary: {
-      backgroundColor: "#fff",
-      textColor: "#222",
-      borderColor: "#e5e7eb",
-      borderRadius: "10px",
+      backgroundColor: "#ffffff",
+      textColor: "rgba(55, 53, 47, 1)",
+      borderColor: "rgba(55, 53, 47, 0.16)",
+      borderRadius: "6px",
+      fontSize: "14px",
+      fontWeight: "500",
     },
     disabled: {
-      backgroundColor: "#f1f1f1",
-      textColor: "#bdbdbd",
-      borderColor: "#e5e7eb",
-      borderRadius: "10px",
+      backgroundColor: "rgba(55, 53, 47, 0.09)",
+      textColor: "rgba(55, 53, 47, 0.4)",
+      borderColor: "rgba(55, 53, 47, 0.09)",
+      borderRadius: "6px",
     },
   },
   inputs: {
-    backgroundColor: "#fff",
-    textColor: "#222",
-    placeholderColor: "#bdbdbd",
-    borderColor: "#e5e7eb",
+    backgroundColor: "#ffffff",
+    textColor: "rgba(55, 53, 47, 1)",
+    placeholderColor: "rgba(55, 53, 47, 0.4)",
+    borderColor: "rgba(55, 53, 47, 0.16)",
     borderRadius: "6px",
+    fontSize: "14px",
   },
-  borderRadius: "18px",
+  borderRadius: "8px",
 }
 
 export const discoveryStyles = {

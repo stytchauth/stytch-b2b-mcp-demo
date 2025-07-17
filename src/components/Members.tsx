@@ -12,7 +12,15 @@ import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
 const Members = () => {
 
   return (
-    <AdminPortalMemberManagement config={adminPortalConfig} styles={adminPortalStyles} />
+    <div>
+      <div className="page-header">
+        <h1 className="page-title">Team Members</h1>
+        <p className="page-subtitle">Invite and manage members of your organization</p>
+      </div>
+      <div className="admin-content-wrapper">
+        <AdminPortalMemberManagement config={adminPortalConfig} styles={adminPortalStyles} />
+      </div>
+    </div>
   );
 };
 

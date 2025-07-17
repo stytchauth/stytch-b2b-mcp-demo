@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStytchMemberSession } from '@stytch/nextjs/b2b';
-import Login from '@/src/components/Login';
+import Login from '../components/Login';
 
 export default function Index() {
   const { session, isInitialized } = useStytchMemberSession();

@@ -12,7 +12,15 @@ import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
 const SSO = () => {
 
   return (
-    <AdminPortalSSO config={adminPortalConfig} styles={adminPortalStyles} />
+    <div>
+      <div className="page-header">
+        <h1 className="page-title">Single Sign-On</h1>
+        <p className="page-subtitle">Configure SAML and OIDC SSO connections for your organization</p>
+      </div>
+      <div className="admin-content-wrapper">
+        <AdminPortalSSO config={adminPortalConfig} styles={adminPortalStyles} />
+      </div>
+    </div>
   );
 };
 

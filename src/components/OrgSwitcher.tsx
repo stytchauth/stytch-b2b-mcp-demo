@@ -68,7 +68,7 @@ const OrgSwitcher = () => {
                 className={`workspace-switcher-trigger-modern${isOpen ? ' open' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span className="workspace-avatar" style={{background: '#4F46E5'}}>
+                <span className="workspace-avatar" style={{background: 'rgba(55, 53, 47, 0.8)'}}>
                   {getInitial(currentOrganization.organization_name)}
                 </span>
                 <span className="workspace-name">{currentOrganization.organization_name}</span>
@@ -87,7 +87,7 @@ const OrgSwitcher = () => {
                                 className={`workspace-switcher-item-modern${org.organization.organization_id === currentOrganization.organization_id ? ' active' : ''}`}
                                 onClick={() => handleOrganizationSelect(org)}
                             >
-                                <span className="workspace-avatar" style={{background: '#2563EB'}}>
+                                <span className="workspace-avatar" style={{background: 'rgba(55, 53, 47, 0.6)'}}>
                                   {getInitial(org.organization.organization_name)}
                                 </span>
                                 <span className="workspace-name">{org.organization.organization_name}</span>

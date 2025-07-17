@@ -11,7 +11,15 @@ import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
 const SCIM = () => {
 
   return (
-      <AdminPortalSCIM styles={adminPortalStyles} config={adminPortalConfig} />
+    <div>
+      <div className="page-header">
+        <h1 className="page-title">SCIM Provisioning</h1>
+        <p className="page-subtitle">Manage user provisioning and directory sync for your organization</p>
+      </div>
+      <div className="admin-content-wrapper">
+        <AdminPortalSCIM styles={adminPortalStyles} config={adminPortalConfig} />
+      </div>
+    </div>
   );
 };
 

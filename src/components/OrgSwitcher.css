@@ -1,83 +1,97 @@
-/* Modern Workspace Switcher Styles */
+/* Notion-style Workspace Switcher - Dashboard Aligned */
 
 .workspace-switcher-modern {
   position: relative;
-  width: 240px;
-  margin: 24px auto 0 auto;
+  width: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
 .workspace-switcher-trigger-modern {
   display: flex;
   align-items: center;
   width: 100%;
-  background: #f5f6fa;
+  background: transparent;
   border: none;
-  border-radius: 12px;
-  padding: 10px 16px;
-  font-size: 1.1em;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
   font-weight: 500;
-  color: #222;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  color: rgba(55, 53, 47, 0.9);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.15s ease;
   gap: 10px;
-}
-.workspace-switcher-trigger-modern.open,
-.workspace-switcher-trigger-modern:hover {
-  background: #e0e7ff;
+  min-height: 36px;
+  font-family: inherit;
 }
 
+
+
+
+
 .workspace-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: rgba(55, 53, 47, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-weight: 600;
-  font-size: 1.1em;
-  margin-right: 8px;
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
 .workspace-name {
   flex: 1;
   text-align: left;
-  font-size: 1em;
+  font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(55, 53, 47, 1);
 }
 
 .workspace-chevron {
-  font-size: 1.1em;
-  color: #6366f1;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.6);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
 }
 
 .workspace-switcher-dropdown-modern {
   position: absolute;
-  top: 110%;
+  top: calc(100% + 6px);
   left: 0;
-  width: 100%;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-  z-index: 10;
-  padding: 12px 0 0 0;
-  margin-top: 6px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 1px 2px rgba(0, 0, 0, 0.02);
+  z-index: 1000;
+  padding: 12px;
+  margin: 0;
+  font-family: inherit;
 }
 
 .workspace-switcher-header-modern {
-  padding: 0 20px 8px 20px;
-  font-size: 0.98em;
-  color: #6366f1;
+  padding: 8px 12px 8px 12px;
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.6);
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
 }
 
 .workspace-switcher-list-modern {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 0 8px;
-  max-height: 220px;
+  padding: 0;
+  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -89,58 +103,72 @@
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
-  font-size: 1em;
-  color: #222;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.9);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s ease;
   position: relative;
-}
-.workspace-switcher-item-modern.active,
-.workspace-switcher-item-modern:hover {
-  background: #eef2ff;
+  width: 100%;
+  text-align: left;
+  min-height: 32px;
+  font-family: inherit;
 }
 
+
+
+
+
 .current-badge {
-  background: #6366f1;
+  background: #2383e2;
   color: #fff;
-  font-size: 0.8em;
-  border-radius: 6px;
-  padding: 2px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  padding: 2px 6px;
   margin-left: auto;
+  font-weight: 500;
 }
 
 .lock-icon {
-  color: #b91c1c;
+  color: rgba(55, 53, 47, 0.4);
   margin-left: 6px;
-  font-size: 1em;
+  font-size: 12px;
+}
+
+.invite-icon {
+  color: #2383e2;
+  margin-left: 6px;
+  font-size: 12px;
 }
 
 .current-checkmark {
   margin-left: auto;
-  color: #6366f1;
-  font-size: 1.1em;
+  color: #2383e2;
+  font-size: 14px;
   vertical-align: middle;
   display: flex;
   align-items: center;
 }
 
 .workspace-switcher-footer-modern {
-  border-top: 1px solid #f1f1f1;
-  margin-top: 10px;
-  padding: 10px 20px;
+  border-top: 1px solid rgba(55, 53, 47, 0.09);
+  margin-top: 12px;
+  padding-top: 12px;
   text-align: left;
 }
 
 .workspace-create-btn {
   background: none;
   border: none;
-  color: #6366f1;
-  font-weight: 600;
-  font-size: 1em;
+  color: #2383e2;
+  font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
-  padding: 0;
-  transition: text-decoration 0.2s;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
 }
-.workspace-create-btn:hover {
-  text-decoration: underline;
-} 
+
+ 
