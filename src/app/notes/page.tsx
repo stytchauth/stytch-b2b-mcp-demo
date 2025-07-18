@@ -52,11 +52,11 @@ ${getAllNotes().map(n => `- [${n.title}](/notes?id=${n.id})`).join('\n')}`,
   return (
     <div className="flex h-full">
       <AppSidebar />
-      <main className="flex-1 flex flex-col pr-0 max-w-full overflow-hidden">
-        <div className="flex items-center p-4 md:p-6 pb-0 pr-4 md:pr-6">
+      <main className="flex-1 p-4 md:p-6">
+        <header className="flex items-center mb-4">
           <SidebarTrigger className="md:hidden mr-2" />
-        </div>
-        <div className="flex-1" style={{ width: 'min(896px, calc(100vw - 2rem))' }}>
+        </header>
+        <div className="h-[calc(100%-4rem)]" style={{ width: 'min(896px, calc(100vw - 2rem))' }}>
           <NotesEditor 
             note={note}
             onNoteUpdate={handleNoteUpdate}

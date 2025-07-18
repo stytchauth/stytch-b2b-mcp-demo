@@ -106,7 +106,7 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
   return (
     <div className="flex-1 flex flex-col h-full">
       <header 
-        className="flex items-center justify-between pl-4 pr-4 py-4 md:pl-6 md:pr-6 md:py-6 flex-shrink-0 relative"
+        className="flex items-center justify-between pl-4 pr-4 md:pl-6 md:pr-6 flex-shrink-0 relative"
         style={{ paddingLeft: 'clamp(1rem, 6vw, 8rem)' }}
       >
         <div className="flex items-center gap-2">
