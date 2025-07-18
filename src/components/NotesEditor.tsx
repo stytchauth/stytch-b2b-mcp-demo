@@ -133,7 +133,7 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
         <div className="flex items-center gap-2">
           {!readOnly && (
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
               onClick={toggleEditMode} 
               className="gap-2"
@@ -142,7 +142,7 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
               {isEditing ? (
                 <>
                   <Check className="w-4 h-4" />
-                  {isSaving ? "Saving..." : "Done"}
+                  {isSaving ? "Saving..." : "Save"}
                 </>
               ) : (
                 <>
