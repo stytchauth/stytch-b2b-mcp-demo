@@ -22,10 +22,5 @@ export default function Index() {
     }
   }, [isInitialized, session, router]);
 
-  // Show loading state while initializing
-  if (!isInitialized) {
-    return null;
-  }
-
   return <Login />;
 }

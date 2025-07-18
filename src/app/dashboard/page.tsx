@@ -25,10 +25,6 @@ export default function DashboardPage() {
   const recentNotes = useMemo(() => getRecentNotes(3), []);
   const favoriteNotes = useMemo(() => getFavoriteNotes(), []);
 
-  if (!isInitialized) {
-    return null;
-  }
-
   if (isInitialized && !session) {
     router.replace("/");
     return null;

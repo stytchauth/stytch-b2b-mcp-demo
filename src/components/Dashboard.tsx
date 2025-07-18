@@ -17,10 +17,6 @@ const Dashboard = () => {
     return session?.roles.includes('stytch_admin') ? 'admin' : 'member';
   }, [session?.roles]);
 
-  if (!isInitialized) {
-    return null;
-  }
-
   if (isInitialized && !session) {
     router.replace("/");
     return null;

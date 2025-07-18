@@ -39,10 +39,6 @@ ${getAllNotes().map(n => `- [${n.title}](/notes?id=${n.id})`).join('\n')}`,
     return foundNote
   }, [noteId])
 
-  if (!isInitialized) {
-    return null;
-  }
-
   if (isInitialized && !session) {
     router.replace("/");
     return null;

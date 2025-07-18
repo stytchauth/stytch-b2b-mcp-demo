@@ -10,10 +10,6 @@ export default function SCIMPage() {
   const { session, isInitialized } = useStytchMemberSession()
   const router = useRouter()
 
-  if (!isInitialized) {
-    return null;
-  }
-
   if (isInitialized && !session) {
     router.replace("/");
     return null;
