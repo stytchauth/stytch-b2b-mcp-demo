@@ -7,7 +7,6 @@ import { useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link"
 import { FileText, PlusCircle, Star } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { getRecentNotes, getFavoriteNotes } from "../../../lib/notesData"
@@ -63,9 +62,6 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Team Updates</CardTitle>
-                  <Avatar className="w-6 h-6">
-                    <AvatarFallback>V</AvatarFallback>
-                  </Avatar>
                 </CardHeader>
                 <CardContent>
                   <p className="text-xs text-muted-foreground">Last update from team members in {organization?.organization_name}.</p>
