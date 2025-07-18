@@ -11,17 +11,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Star, StarOff, Pencil, Check, Share, Trash2 } from "lucide-react"
+import { MoreHorizontal, Star, Pencil, Check, Trash2 } from "lucide-react"
 import { Note, saveNote, deleteNote } from "../../lib/notesData"
 
 interface NotesEditorProps {
   note: Note;
   onNoteUpdate?: (updatedNote: Note) => void;
-  onNoteDelete?: (noteId: string) => void;
   readOnly?: boolean;
 }
 
-export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly = false }: NotesEditorProps) {
+export default function NotesEditor({ note, onNoteUpdate, readOnly = false }: NotesEditorProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentNote, setCurrentNote] = useState<Note>(note)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -94,7 +93,7 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
     setIsDeleting(true)
     try {
       await deleteNote(currentNote.id)
-      onNoteDelete?.(currentNote.id)
+      // Note deleted successfully - in a real app you might want to navigate away
     } catch (error) {
       console.error('Failed to delete note:', error)
       alert('Failed to delete note. Please try again.')
@@ -152,7 +151,6 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
               )}
             </Button>
           )}
-          <Button variant="ghost">Share</Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" disabled={isDeleting} className="focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none">

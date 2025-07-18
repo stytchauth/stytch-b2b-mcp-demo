@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronDown, ChevronUp, FileText, Home, Plus, Search, Settings, User, Users, Shield, Grid } from "lucide-react"
+import { ChevronDown, ChevronUp, FileText, Home, Plus, Settings, Users, Shield, Grid } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,10 +31,6 @@ import { getRecentNotes } from "../../lib/notesData"
 import { useMemo } from 'react'
 import OrgSwitcher from './OrgSwitcher'
 
-const projects = [
-  { name: "Dashboard", href: "/dashboard", icon: <Home className="w-4 h-4" /> },
-]
-
 const settingsItems = [
   { name: "Members", href: "/members", icon: <Users className="w-4 h-4" /> },
   { name: "Organization", href: "/settings", icon: <Settings className="w-4 h-4" /> },
@@ -49,9 +45,7 @@ export function AppSidebar() {
   const { organization } = useStytchOrganization()
   const router = useRouter()
   const pathname = usePathname()
-  const { state, isMobile } = useSidebar()
-
-
+  const { isMobile } = useSidebar()
 
   // Get recent notes for sidebar
   const recentNotes = useMemo(() => getRecentNotes(3), [])
@@ -77,9 +71,8 @@ export function AppSidebar() {
     return null;
   }
 
-  // Get user name and initial for avatar - use loading placeholders if data not yet available
+  // Get user name and organization info - use loading placeholders if data not yet available
   const userName = member?.name || member?.email_address || '...'
-  const userInitial = member ? userName.charAt(0).toUpperCase() : '...'
   const orgName = organization?.organization_name || '...'
   const orgInitial = organization ? orgName.charAt(0).toUpperCase() : '...'
 
@@ -108,7 +101,7 @@ export function AppSidebar() {
             align="start"
             sideOffset={4}
           >
-            <OrgSwitcher variant="sidebar" />
+            <OrgSwitcher />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarHeader>
@@ -116,12 +109,6 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Search">
-                  <Search />
-                  <span>Search</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive("/dashboard")} tooltip="Home">
                   <Link href="/dashboard">
@@ -142,16 +129,6 @@ export function AppSidebar() {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projects.filter(project => project.href !== "/dashboard").map((project) => (
-                <SidebarMenuItem key={project.name}>
-                  <SidebarMenuButton asChild isActive={isActive(project.href)} tooltip={project.name}>
-                    <Link href={project.href}>
-                      {project.icon}
-                      <span>{project.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
               {recentNotes.map((note) => (
                 <SidebarMenuItem key={note.id}>
                   <SidebarMenuButton asChild isActive={pathname === "/notes" && new URLSearchParams(window.location.search).get('id') === note.id} tooltip={note.title}>
@@ -162,11 +139,11 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              {recentNotes.length === 0 && projects.filter(project => project.href !== "/dashboard").length === 1 && (
+              {recentNotes.length === 0 && (
                 <SidebarMenuItem>
                   <SidebarMenuButton disabled>
                     <FileText className="w-4 h-4" />
-                    <span className="text-muted-foreground">No additional notes yet</span>
+                    <span className="text-muted-foreground">No notes yet</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
@@ -213,11 +190,6 @@ export function AppSidebar() {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
-                  <User className="w-4 h-4 mr-2" />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogOut} className="text-red-600">
                   Log out
                 </DropdownMenuItem>

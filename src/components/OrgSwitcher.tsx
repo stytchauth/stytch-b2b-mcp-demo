@@ -4,11 +4,7 @@ import { useStytchB2BClient, useStytchOrganization, useStytchMemberSession, useS
 import { DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Loader2, Mail, Lock, Check, Plus } from 'lucide-react';
 
-interface OrgSwitcherProps {
-  variant?: 'standalone' | 'sidebar';
-}
-
-const OrgSwitcher = ({ variant = 'standalone' }: OrgSwitcherProps) => {
+const OrgSwitcher = () => {
     const stytch = useStytchB2BClient();
     const { organization: currentOrganization } = useStytchOrganization();
     const { session } = useStytchMemberSession();
@@ -18,12 +14,10 @@ const OrgSwitcher = ({ variant = 'standalone' }: OrgSwitcherProps) => {
     const router = useRouter();
     const pathname = usePathname();
 
-    // Auto-load organizations when component mounts for sidebar variant
+    // Auto-load organizations when component mounts
     useEffect(() => {
-        if (variant === 'sidebar') {
-            loadOrganizations();
-        }
-    }, [variant]); // eslint-disable-line react-hooks/exhaustive-deps
+        loadOrganizations();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadOrganizations = async () => {
         setIsLoading(true);
@@ -65,88 +59,57 @@ const OrgSwitcher = ({ variant = 'standalone' }: OrgSwitcherProps) => {
     // Helper to get initials for avatar
     const getInitial = (name: any) => name.charAt(0).toUpperCase();
 
-    // Render for sidebar variant
-    if (variant === 'sidebar') {
-        return (
-            <>
-                <div className="px-2 py-1.5 text-left text-sm font-semibold">Switch Team</div>
-                <DropdownMenuSeparator />
-                
-                {isLoading ? (
-                    <DropdownMenuItem disabled>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Loading organizations...
-                    </DropdownMenuItem>
-                ) : organizations.length === 0 ? (
-                    <DropdownMenuItem disabled>
-                        <span className="text-muted-foreground">No other organizations found</span>
-                    </DropdownMenuItem>
-                ) : (
-                    organizations.map((org) => (
-                        <DropdownMenuItem
-                            key={org.organization.organization_id}
-                            onClick={() => handleOrganizationSelect(org)}
-                            className="flex items-center justify-between"
-                        >
-                            <div className="flex items-center">
-                                <div className="flex aspect-square size-6 items-center justify-center rounded bg-sidebar-primary text-sidebar-primary-foreground mr-2">
-                                    <span className="text-xs font-semibold">
-                                        {getInitial(org.organization.organization_name)}
-                                    </span>
-                                </div>
-                                <span>{org.organization.organization_name}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                {/* Pending invite icon */}
-                                {org.membership?.type === 'invited_member' && (
-                                    <Mail className="w-4 h-4 text-orange-500" />
-                                )}
-                                {!org.member_authenticated && <Lock className="w-4 h-4 text-gray-400" />}
-                                {/* Current org checkmark */}
-                                {org.organization.organization_id === currentOrganization?.organization_id && (
-                                    <Check className="w-4 h-4 text-blue-600" />
-                                )}
-                            </div>
-                        </DropdownMenuItem>
-                    ))
-                )}
-                
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Team
+    return (
+        <>
+            <div className="px-2 py-1.5 text-left text-sm font-semibold">Switch Team</div>
+            <DropdownMenuSeparator />
+            
+            {isLoading ? (
+                <DropdownMenuItem disabled>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading organizations...
                 </DropdownMenuItem>
-            </>
-        );
-    }
-
-    // Original standalone variant would go here if needed
-    // For now, just return null since we're using the sidebar variant
-    return null;
-};
-
-// Export the load function so it can be called from parent components
-export const useOrgSwitcher = () => {
-    const stytch = useStytchB2BClient();
-    const { session } = useStytchMemberSession();
-    const { member } = useStytchMember();
-    const [organizations, setOrganizations] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const loadOrganizations = async () => {
-        setIsLoading(true);
-        try {
-            const response = await stytch.discovery.organizations.list();
-            setOrganizations(response.discovered_organizations);
-        } catch (error) {
-            console.error('Failed to load organizations:', error);
-            setOrganizations([]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return { organizations, isLoading, loadOrganizations };
+            ) : organizations.length === 0 ? (
+                <DropdownMenuItem disabled>
+                    <span className="text-muted-foreground">No other organizations found</span>
+                </DropdownMenuItem>
+            ) : (
+                organizations.map((org) => (
+                    <DropdownMenuItem
+                        key={org.organization.organization_id}
+                        onClick={() => handleOrganizationSelect(org)}
+                        className="flex items-center justify-between"
+                    >
+                        <div className="flex items-center">
+                            <div className="flex aspect-square size-6 items-center justify-center rounded bg-sidebar-primary text-sidebar-primary-foreground mr-2">
+                                <span className="text-xs font-semibold">
+                                    {getInitial(org.organization.organization_name)}
+                                </span>
+                            </div>
+                            <span>{org.organization.organization_name}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {/* Pending invite icon */}
+                            {org.membership?.type === 'invited_member' && (
+                                <Mail className="w-4 h-4 text-orange-500" />
+                            )}
+                            {!org.member_authenticated && <Lock className="w-4 h-4 text-gray-400" />}
+                            {/* Current org checkmark */}
+                            {org.organization.organization_id === currentOrganization?.organization_id && (
+                                <Check className="w-4 h-4 text-blue-600" />
+                            )}
+                        </div>
+                    </DropdownMenuItem>
+                ))
+            )}
+            
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Team
+            </DropdownMenuItem>
+        </>
+    );
 };
 
 export default OrgSwitcher;
