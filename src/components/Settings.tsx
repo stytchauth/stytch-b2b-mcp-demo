@@ -14,7 +14,7 @@ const Settings = () => {
     <div className="page-container">
       <div className="page-header">
         <p className="page-subtitle">
-          Manage your organization's configuration and preferences
+          Manage your organization&apos;s configuration and preferences
         </p>
       </div>
       <AdminPortalOrgSettings
