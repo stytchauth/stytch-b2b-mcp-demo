@@ -3,16 +3,16 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStytchMemberSession } from '@stytch/nextjs/b2b';
-import Login from '@/src/components/Login';
+import Login from '../components/Login';
 
 export default function Index() {
   const { session, isInitialized } = useStytchMemberSession();
   const router = useRouter();
 
   const alreadyLoggedInRef = useRef<boolean>();
-  const hasSession = !!session;
   useEffect(() => {
     if (isInitialized && alreadyLoggedInRef.current === undefined) {
+      const hasSession = !!session;
       alreadyLoggedInRef.current = hasSession;
 
       if (hasSession) {
@@ -20,7 +20,7 @@ export default function Index() {
         router.replace('/dashboard');
       }
     }
-  }, [isInitialized, hasSession, router]);
+  }, [isInitialized, session, router]);
 
   return <Login />;
 }

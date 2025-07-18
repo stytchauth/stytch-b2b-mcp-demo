@@ -1,4 +1,4 @@
-import { AdminPortalSCIM } from '@stytch/nextjs/b2b/adminPortal'
+import { AdminPortalSCIM } from '@stytch/nextjs/b2b/adminPortal';
 import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
 
 /*
@@ -9,9 +9,15 @@ import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
  */
 
 const SCIM = () => {
-
   return (
+    <div className="page-container">
+      <div className="page-header">
+        <p className="page-subtitle">
+          Manage user provisioning and directory sync for your organization
+        </p>
+      </div>
       <AdminPortalSCIM styles={adminPortalStyles} config={adminPortalConfig} />
+    </div>
   );
 };
 

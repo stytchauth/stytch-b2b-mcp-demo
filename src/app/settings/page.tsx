@@ -1,9 +1,31 @@
 'use client';
 
-import WrappedSettings from '@/src/components/Settings';
+import { AppSidebar } from '../../components/app-sidebar';
+import { SidebarTrigger } from '../../components/ui/sidebar';
+import Settings from '../../components/Settings';
+import { useStytchMemberSession } from '@stytch/nextjs/b2b';
+import { useRouter } from 'next/navigation';
 
-const SettingsPage = () => {
-  return <WrappedSettings />;
-};
+export default function SettingsPage() {
+  const { session, isInitialized } = useStytchMemberSession();
+  const router = useRouter();
 
-export default SettingsPage;
+  if (isInitialized && !session) {
+    router.replace('/');
+    return null;
+  }
+  return (
+    <div className="flex h-full">
+      <AppSidebar />
+      <main className="flex-1 p-4 md:p-6">
+        <header className="flex items-center mb-4">
+          <SidebarTrigger className="md:hidden mr-2" />
+          <h1 className="text-2xl font-semibold">Organization Settings</h1>
+        </header>
+        <div className="h-[calc(100%-4rem)]">
+          <Settings />
+        </div>
+      </main>
+    </div>
+  );
+}

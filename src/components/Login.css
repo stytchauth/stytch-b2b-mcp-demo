@@ -1,7 +1,60 @@
 .centered-login {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 1000;
+}
+
+.login-container {
+  width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.notion-header {
+  text-align: left;
+  margin-bottom: 32px;
+  padding-left: 24px;
+  /* Position header at a consistent location from top */
+  margin-top: 18vh; /* 18% from top of viewport */
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.notion-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin: 0 0 8px 0;
+  line-height: 1.1;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    system-ui,
+    sans-serif;
+}
+
+.notion-subtitle {
+  font-size: 28px;
+  font-weight: 400;
+  color: #787774;
+  margin: 0;
+  line-height: 1.4;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    system-ui,
+    sans-serif;
 }

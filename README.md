@@ -9,6 +9,7 @@ It's largely a fork of the Next.js B2B Quickstart.
 The copy for the login component and the org switcher should be updated to reflect whatever terminology the prospect uses to refer to Organizations
 
 ## TODO:
+
 - [ ] Currently the Org Switcher shows a "Create team" button that isn't hooked up to anything. Hook this up to a BE API call that calls `CreateOrganization` and `CreateMember` and _then_ completes the headless SessionExchange with the new `organization_id`
 - [ ] Handle step-up SSO when switching from an Organization that doesn't require SSO to one that does (this is the easiest one to demonsrate, since no UI required)
 
@@ -62,6 +63,7 @@ npm run dev
 The application will be available at [`http://localhost:3000`](http://localhost:3000).
 
 # Flows to explore
+
 - [ ] Authenticate and create a new Organization
 - [ ] Invite an alias of your email to the Organization in the "Members" tab
 - [ ] Enable Just-in-Time (JIT) Provisioning for your work email domain in the "Settings" tab, and set an Automatic Role Assignment to have all users from that domain automatically be assigned the Admin Role

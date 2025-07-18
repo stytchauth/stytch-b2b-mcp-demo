@@ -1,4 +1,4 @@
-import { AdminPortalSSO } from '@stytch/nextjs/b2b/adminPortal'
+import { AdminPortalSSO } from '@stytch/nextjs/b2b/adminPortal';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
 
@@ -10,9 +10,15 @@ import { adminPortalConfig, adminPortalStyles } from '@/lib/stytchConfig';
  */
 
 const SSO = () => {
-
   return (
-    <AdminPortalSSO config={adminPortalConfig} styles={adminPortalStyles} />
+    <div className="page-container">
+      <div className="page-header">
+        <p className="page-subtitle">
+          Configure SAML and OIDC SSO connections for your organization
+        </p>
+      </div>
+      <AdminPortalSSO config={adminPortalConfig} styles={adminPortalStyles} />
+    </div>
   );
 };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import Login from '@/src/components/Login';
+import Login from '../../components/Login';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStytchMemberSession } from '@stytch/nextjs/b2b';
@@ -10,9 +10,9 @@ export default function AuthenticatePage() {
   const router = useRouter();
 
   const alreadyLoggedInRef = useRef<boolean>();
-  const hasSession = !!session;
   useEffect(() => {
     if (isInitialized && alreadyLoggedInRef.current === undefined) {
+      const hasSession = !!session;
       alreadyLoggedInRef.current = hasSession;
 
       if (hasSession) {
@@ -20,7 +20,7 @@ export default function AuthenticatePage() {
         router.replace('/dashboard');
       }
     }
-  }, [isInitialized, hasSession, router]);
+  }, [isInitialized, session, router]);
 
   return <Login />;
 }
