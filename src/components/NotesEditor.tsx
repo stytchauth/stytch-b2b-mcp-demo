@@ -202,7 +202,7 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
         </div>
       )}
 
-      <div className={`flex-1 ${isEditing ? 'p-0' : 'p-0'} overflow-auto`}>
+      <div className={`flex-1 ${isEditing ? 'p-0' : 'p-0'}`}>
         {isEditing ? (
           <Textarea
             placeholder="Start writing your note here..."
