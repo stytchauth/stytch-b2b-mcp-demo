@@ -1,17 +1,17 @@
 'use client';
 
-import { AppSidebar } from "../../components/app-sidebar"
-import { SidebarTrigger } from "../../components/ui/sidebar"
-import Settings from '../../components/Settings'
-import { useStytchMemberSession } from '@stytch/nextjs/b2b'
-import { useRouter } from 'next/navigation'
+import { AppSidebar } from '../../components/app-sidebar';
+import { SidebarTrigger } from '../../components/ui/sidebar';
+import Settings from '../../components/Settings';
+import { useStytchMemberSession } from '@stytch/nextjs/b2b';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
-  const { session, isInitialized } = useStytchMemberSession()
-  const router = useRouter()
+  const { session, isInitialized } = useStytchMemberSession();
+  const router = useRouter();
 
   if (isInitialized && !session) {
-    router.replace("/");
+    router.replace('/');
     return null;
   }
   return (
@@ -27,5 +27,5 @@ export default function SettingsPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

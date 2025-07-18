@@ -1,15 +1,25 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { ChevronDown, ChevronUp, FileText, Home, Plus, Settings, Users, Shield, Grid } from "lucide-react"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import {
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Home,
+  Plus,
+  Settings,
+  Users,
+  Shield,
+  Grid,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -24,47 +34,60 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { useStytchB2BClient, useStytchMemberSession, useStytchMember, useStytchOrganization } from '@stytch/nextjs/b2b'
-import { useRouter } from 'next/navigation'
-import { getRecentNotes } from "../../lib/notesData"
-import { useMemo } from 'react'
-import OrgSwitcher from './OrgSwitcher'
+} from '@/components/ui/sidebar';
+import {
+  useStytchB2BClient,
+  useStytchMemberSession,
+  useStytchMember,
+  useStytchOrganization,
+} from '@stytch/nextjs/b2b';
+import { useRouter } from 'next/navigation';
+import { getRecentNotes } from '../../lib/notesData';
+import { useMemo } from 'react';
+import OrgSwitcher from './OrgSwitcher';
 
 const settingsItems = [
-  { name: "Members", href: "/members", icon: <Users className="w-4 h-4" /> },
-  { name: "Organization", href: "/settings", icon: <Settings className="w-4 h-4" /> },
-  { name: "SSO", href: "/sso", icon: <Shield className="w-4 h-4" /> },
-  { name: "SCIM", href: "/scim", icon: <Grid className="w-4 h-4" /> },
-]
+  { name: 'Members', href: '/members', icon: <Users className="w-4 h-4" /> },
+  {
+    name: 'Organization',
+    href: '/settings',
+    icon: <Settings className="w-4 h-4" />,
+  },
+  { name: 'SSO', href: '/sso', icon: <Shield className="w-4 h-4" /> },
+  { name: 'SCIM', href: '/scim', icon: <Grid className="w-4 h-4" /> },
+];
 
 export function AppSidebar() {
-  const stytch = useStytchB2BClient()
-  const { session, isInitialized } = useStytchMemberSession()
-  const { member } = useStytchMember()
-  const { organization } = useStytchOrganization()
-  const router = useRouter()
-  const pathname = usePathname()
-  const { isMobile } = useSidebar()
+  const stytch = useStytchB2BClient();
+  const { session, isInitialized } = useStytchMemberSession();
+  const { member } = useStytchMember();
+  const { organization } = useStytchOrganization();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { isMobile } = useSidebar();
 
   // Get recent notes for sidebar
-  const recentNotes = useMemo(() => getRecentNotes(3), [])
+  const recentNotes = useMemo(() => getRecentNotes(3), []);
 
   const handleLogOut = () => {
-    stytch.session.revoke()
+    stytch.session
+      .revoke()
       .then(() => {
-        router.replace('/')
+        router.replace('/');
       })
-      .catch((error) => {
+      .catch(error => {
         // If session is already invalid (401), still redirect to home
-        console.log('Session revoke failed (likely already expired):', error.message)
-        router.replace('/')
-      })
-  }
+        console.log(
+          'Session revoke failed (likely already expired):',
+          error.message
+        );
+        router.replace('/');
+      });
+  };
 
   const isActive = (href: string) => {
-    return pathname === href
-  }
+    return pathname === href;
+  };
 
   // Only hide sidebar if initialization is complete and there's no session
   if (isInitialized && !session) {
@@ -72,9 +95,9 @@ export function AppSidebar() {
   }
 
   // Get user name and organization info - use loading placeholders if data not yet available
-  const userName = member?.name || member?.email_address || '...'
-  const orgName = organization?.organization_name || '...'
-  const orgInitial = organization ? orgName.charAt(0).toUpperCase() : '...'
+  const userName = member?.name || member?.email_address || '...';
+  const orgName = organization?.organization_name || '...';
+  const orgInitial = organization ? orgName.charAt(0).toUpperCase() : '...';
 
   return (
     <Sidebar collapsible="icon">
@@ -97,7 +120,7 @@ export function AppSidebar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? 'bottom' : 'right'}
             align="start"
             sideOffset={4}
           >
@@ -110,7 +133,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive("/dashboard")} tooltip="Home">
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive('/dashboard')}
+                  tooltip="Home"
+                >
                   <Link href="/dashboard">
                     <Home />
                     <span>Home</span>
@@ -129,9 +156,17 @@ export function AppSidebar() {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {recentNotes.map((note) => (
+              {recentNotes.map(note => (
                 <SidebarMenuItem key={note.id}>
-                  <SidebarMenuButton asChild isActive={pathname === "/notes" && new URLSearchParams(window.location.search).get('id') === note.id} tooltip={note.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      pathname === '/notes' &&
+                      new URLSearchParams(window.location.search).get('id') ===
+                        note.id
+                    }
+                    tooltip={note.title}
+                  >
                     <Link href={`/notes?id=${note.id}`}>
                       <FileText className="w-4 h-4" />
                       <span className="truncate">{note.title}</span>
@@ -154,9 +189,13 @@ export function AppSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {settingsItems.map((item) => (
+              {settingsItems.map(item => (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.name}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.href)}
+                    tooltip={item.name}
+                  >
                     <Link href={item.href}>
                       {item.icon}
                       <span>{item.name}</span>
@@ -179,18 +218,23 @@ export function AppSidebar() {
                 >
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{userName}</span>
-                    <span className="truncate text-xs">{member?.email_address}</span>
+                    <span className="truncate text-xs">
+                      {member?.email_address}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
+                side={isMobile ? 'bottom' : 'right'}
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem onClick={handleLogOut} className="text-red-600">
+                <DropdownMenuItem
+                  onClick={handleLogOut}
+                  className="text-red-600"
+                >
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -200,5 +244,5 @@ export function AppSidebar() {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
-} 
+  );
+}

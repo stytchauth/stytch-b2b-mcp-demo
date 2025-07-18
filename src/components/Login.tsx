@@ -4,7 +4,11 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { StytchB2B } from '@stytch/nextjs/b2b';
 import { StytchEventType } from '@stytch/vanilla-js';
-import { discoveryConfig, discoveryStyles, customStrings } from '@/lib/stytchConfig';
+import {
+  discoveryConfig,
+  discoveryStyles,
+  customStrings,
+} from '@/lib/stytchConfig';
 import './Login.css';
 
 /*
@@ -15,7 +19,6 @@ import './Login.css';
  */
 
 const Login = () => {
-
   const router = useRouter();
 
   return (
@@ -26,16 +29,16 @@ const Login = () => {
           <p className="notion-subtitle">Log in to your Notely account</p>
         </div>
         <StytchB2B
-        config={discoveryConfig}
-        styles={discoveryStyles}
-        strings={customStrings}
-        callbacks={{
-          onEvent: (event) => {
-            if (event.type === StytchEventType.AuthenticateFlowComplete) {
-              router.replace('/dashboard');
-            }
-          },
-        }}
+          config={discoveryConfig}
+          styles={discoveryStyles}
+          strings={customStrings}
+          callbacks={{
+            onEvent: event => {
+              if (event.type === StytchEventType.AuthenticateFlowComplete) {
+                router.replace('/dashboard');
+              }
+            },
+          }}
         />
       </div>
     </div>

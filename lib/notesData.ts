@@ -11,8 +11,8 @@ export interface Note {
 // Mock notes data - this would typically come from an API or database
 const mockNotes: Note[] = [
   {
-    id: "team-notes",
-    title: "Team Notes",
+    id: 'team-notes',
+    title: 'Team Notes',
     content: `# Team Notes
 
 This is your collaborative space for team notes and ideas.
@@ -38,11 +38,11 @@ Use this space to capture creative ideas and thoughts that emerge during collabo
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-15'),
     isFavorite: true,
-    tags: ['team', 'collaboration']
+    tags: ['team', 'collaboration'],
   },
   {
-    id: "getting-started",
-    title: "Getting Started",
+    id: 'getting-started',
+    title: 'Getting Started',
     content: `# Getting Started Guide
 
 Welcome to our collaborative workspace! This guide will help you get up and running quickly. This is some long text to see how it looks.
@@ -80,11 +80,11 @@ Happy collaborating! 🚀`,
     createdAt: new Date('2024-01-10'),
     updatedAt: new Date('2024-01-12'),
     isFavorite: false,
-    tags: ['onboarding', 'guide']
+    tags: ['onboarding', 'guide'],
   },
   {
-    id: "project-roadmap",
-    title: "Project Roadmap Q3",
+    id: 'project-roadmap',
+    title: 'Project Roadmap Q3',
     content: `# Q3 Project Roadmap
 
 ## Overview
@@ -128,8 +128,8 @@ Our focus for Q3 is expanding platform capabilities and improving user experienc
     createdAt: new Date('2024-01-08'),
     updatedAt: new Date('2024-01-14'),
     isFavorite: true,
-    tags: ['roadmap', 'planning', 'q3']
-  }
+    tags: ['roadmap', 'planning', 'q3'],
+  },
 ];
 
 // Utility functions for note management
@@ -165,12 +165,12 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
     createdAt: note.createdAt || new Date(),
     updatedAt: new Date(),
     isFavorite: note.isFavorite || false,
-    tags: note.tags || []
+    tags: note.tags || [],
   };
-  
+
   // In a real app, you'd update the database here
   console.log('Saving note:', updatedNote);
-  
+
   return updatedNote;
 };
 
@@ -178,16 +178,16 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
 export const deleteNote = async (noteId: string): Promise<boolean> => {
   // Mock implementation - in real app this would call an API
   const noteIndex = mockNotes.findIndex(note => note.id === noteId);
-  
+
   if (noteIndex === -1) {
     throw new Error('Note not found');
   }
-  
+
   // Remove the note from the mock data
   mockNotes.splice(noteIndex, 1);
-  
+
   console.log('Deleted note:', noteId);
-  
+
   return true;
 };
 
@@ -198,6 +198,6 @@ export const createNewNote = (): Partial<Note> => {
     createdAt: new Date(),
     updatedAt: new Date(),
     isFavorite: false,
-    tags: []
+    tags: [],
   };
-}; 
+};

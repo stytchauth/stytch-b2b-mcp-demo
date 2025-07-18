@@ -33,7 +33,14 @@
   color: #2d2d2d;
   margin: 0 0 8px 0;
   line-height: 1.1;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', system-ui, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    system-ui,
+    sans-serif;
 }
 
 .notion-subtitle {
@@ -42,5 +49,12 @@
   color: #787774;
   margin: 0;
   line-height: 1.4;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', system-ui, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    system-ui,
+    sans-serif;
 }
