@@ -26,7 +26,6 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import { useStytchB2BClient, useStytchMemberSession, useStytchMember, useStytchOrganization } from '@stytch/nextjs/b2b'
 import { useRouter } from 'next/navigation'
 import { getRecentNotes } from "../../lib/notesData"
@@ -86,183 +85,153 @@ export function AppSidebar() {
   const orgInitial = organization ? orgName.charAt(0).toUpperCase() : '...'
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <Sidebar collapsible="icon">
-        <SidebarHeader>
-                    <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <span className="text-sm font-semibold">{orgInitial}</span>
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{orgName}</span>
-                  <span className="truncate text-xs">Workspace</span>
-                </div>
-                <ChevronDown className="ml-auto size-4" />
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-              side={isMobile ? "bottom" : "right"}
-              align="start"
-              sideOffset={4}
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <OrgSwitcher variant="sidebar" />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Search">
-                    <Search />
-                    <span>Search</span>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <span className="text-sm font-semibold">{orgInitial}</span>
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">{orgName}</span>
+                <span className="truncate text-xs">Workspace</span>
+              </div>
+              <ChevronDown className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="start"
+            sideOffset={4}
+          >
+            <OrgSwitcher variant="sidebar" />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Search">
+                  <Search />
+                  <span>Search</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/dashboard")} tooltip="Home">
+                  <Link href="/dashboard">
+                    <Home />
+                    <span>Home</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupAction>
+            <Link href="/notes">
+              <Plus className="size-4" />
+            </Link>
+          </SidebarGroupAction>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {projects.filter(project => project.href !== "/dashboard").map((project) => (
+                <SidebarMenuItem key={project.name}>
+                  <SidebarMenuButton asChild isActive={isActive(project.href)} tooltip={project.name}>
+                    <Link href={project.href}>
+                      {project.icon}
+                      <span>{project.name}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton asChild isActive={isActive("/dashboard")}>
-                        <Link href="/dashboard">
-                          <Home />
-                          <span>Home</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" align="center" hidden={state !== "collapsed" || isMobile}>
-                      Home
-                    </TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>Projects</SidebarGroupLabel>
-            <SidebarGroupAction>
-              <Link href="/notes">
-                <Plus className="size-4" />
-              </Link>
-            </SidebarGroupAction>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {projects.filter(project => project.href !== "/dashboard").map((project) => (
-                  <SidebarMenuItem key={project.name}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton asChild isActive={isActive(project.href)}>
-                          <Link href={project.href}>
-                            {project.icon}
-                            <span>{project.name}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" align="center" hidden={state !== "collapsed" || isMobile}>
-                        {project.name}
-                      </TooltipContent>
-                    </Tooltip>
-                  </SidebarMenuItem>
-                ))}
-                {recentNotes.map((note) => (
-                  <SidebarMenuItem key={note.id}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton asChild isActive={pathname === "/notes" && new URLSearchParams(window.location.search).get('id') === note.id}>
-                          <Link href={`/notes?id=${note.id}`}>
-                            <FileText className="w-4 h-4" />
-                            <span className="truncate">{note.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" align="center" hidden={state !== "collapsed" || isMobile}>
-                        {note.title}
-                      </TooltipContent>
-                    </Tooltip>
-                  </SidebarMenuItem>
-                ))}
-                {recentNotes.length === 0 && projects.filter(project => project.href !== "/dashboard").length === 1 && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton disabled>
+              ))}
+              {recentNotes.map((note) => (
+                <SidebarMenuItem key={note.id}>
+                  <SidebarMenuButton asChild isActive={pathname === "/notes" && new URLSearchParams(window.location.search).get('id') === note.id} tooltip={note.title}>
+                    <Link href={`/notes?id=${note.id}`}>
                       <FileText className="w-4 h-4" />
-                      <span className="text-muted-foreground">No additional notes yet</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>Settings</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {settingsItems.map((item) => (
-                  <SidebarMenuItem key={item.name}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton asChild isActive={isActive(item.href)}>
-                          <Link href={item.href}>
-                            {item.icon}
-                            <span>{item.name}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" align="center" hidden={state !== "collapsed" || isMobile}>
-                        {item.name}
-                      </TooltipContent>
-                    </Tooltip>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                  >
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src="" alt={userName} />
-                      <AvatarFallback className="rounded-lg">{userInitial}</AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{userName}</span>
-                      <span className="truncate text-xs">{member?.email_address}</span>
-                    </div>
-                    <ChevronUp className="ml-auto size-4" />
+                      <span className="truncate">{note.title}</span>
+                    </Link>
                   </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                  side={isMobile ? "bottom" : "right"}
-                  align="end"
-                  sideOffset={4}
+                </SidebarMenuItem>
+              ))}
+              {recentNotes.length === 0 && projects.filter(project => project.href !== "/dashboard").length === 1 && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton disabled>
+                    <FileText className="w-4 h-4" />
+                    <span className="text-muted-foreground">No additional notes yet</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild isActive={isActive(item.href)} tooltip={item.name}>
+                    <Link href={item.href}>
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <DropdownMenuItem>
-                    <User className="w-4 h-4 mr-2" />
-                    Account
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogOut} className="text-red-600">
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-        <SidebarRail />
-      </Sidebar>
-    </TooltipProvider>
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src="" alt={userName} />
+                    <AvatarFallback className="rounded-lg">{userInitial}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{userName}</span>
+                    <span className="truncate text-xs">{member?.email_address}</span>
+                  </div>
+                  <ChevronUp className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuItem>
+                  <User className="w-4 h-4 mr-2" />
+                  Account
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogOut} className="text-red-600">
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   )
 } 
