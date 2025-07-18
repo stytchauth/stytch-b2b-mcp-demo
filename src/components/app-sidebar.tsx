@@ -45,7 +45,7 @@ const settingsItems = [
 
 export function AppSidebar() {
   const stytch = useStytchB2BClient()
-  const { session } = useStytchMemberSession()
+  const { session, isInitialized } = useStytchMemberSession()
   const { member } = useStytchMember()
   const { organization } = useStytchOrganization()
   const router = useRouter()
@@ -65,15 +65,16 @@ export function AppSidebar() {
     return pathname === href
   }
 
-  // Get user name and initial for avatar
-  const userName = member?.name || member?.email_address || 'User'
-  const userInitial = userName.charAt(0).toUpperCase()
-  const orgName = organization?.organization_name || 'Organization'
-  const orgInitial = orgName.charAt(0).toUpperCase()
-
-  if (!session) {
+  // Only hide sidebar if initialization is complete and there's no session
+  if (isInitialized && !session) {
     return null;
   }
+
+  // Get user name and initial for avatar - use loading placeholders if data not yet available
+  const userName = member?.name || member?.email_address || '...'
+  const userInitial = member ? userName.charAt(0).toUpperCase() : '...'
+  const orgName = organization?.organization_name || '...'
+  const orgInitial = organization ? orgName.charAt(0).toUpperCase() : '...'
 
   return (
     <TooltipProvider delayDuration={0}>
