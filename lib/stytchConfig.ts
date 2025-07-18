@@ -55,11 +55,11 @@ export const discoveryConfig = {
     providers: [{type: B2BOAuthProviders.Google}, {type: B2BOAuthProviders.GitHub}]
   },
   directLoginForSingleMembership: {
-    status: true,
-    ignoreInvites: true,
-    ignoreJitProvisioning: true,
+    status: false, // Disable direct login to ensure discovery works
+    ignoreInvites: false,
+    ignoreJitProvisioning: false,
   },
-  directCreateOrganizationForNoMembership: true,
+  directCreateOrganizationForNoMembership: false, // Disable to see discovery
 };
 
 export const adminPortalStyles = {

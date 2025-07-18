@@ -31,6 +31,7 @@ import { useStytchB2BClient, useStytchMemberSession, useStytchMember, useStytchO
 import { useRouter } from 'next/navigation'
 import { getRecentNotes } from "../../lib/notesData"
 import { useMemo } from 'react'
+import OrgSwitcher from './OrgSwitcher'
 
 const projects = [
   { name: "Dashboard", href: "/dashboard", icon: <Home className="w-4 h-4" /> },
@@ -51,6 +52,8 @@ export function AppSidebar() {
   const router = useRouter()
   const pathname = usePathname()
   const { state, isMobile } = useSidebar()
+
+
 
   // Get recent notes for sidebar
   const recentNotes = useMemo(() => getRecentNotes(3), [])
@@ -86,7 +89,7 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={0}>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <DropdownMenu>
+                    <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
@@ -108,10 +111,7 @@ export function AppSidebar() {
               align="start"
               sideOffset={4}
             >
-              <DropdownMenuItem>
-                <Plus className="w-4 h-4 mr-2" />
-                New Workspace
-              </DropdownMenuItem>
+              <OrgSwitcher variant="sidebar" />
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarHeader>
