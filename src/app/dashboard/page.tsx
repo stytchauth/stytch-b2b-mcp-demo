@@ -1,15 +1,23 @@
 'use client';
 
-import { AppSidebar } from "../../components/app-sidebar"
-import { SidebarInset, SidebarTrigger } from "../../components/ui/sidebar"
-import { useStytchMemberSession, useStytchOrganization } from '@stytch/nextjs/b2b';
+import { AppSidebar } from '../../components/app-sidebar';
+import { SidebarInset, SidebarTrigger } from '../../components/ui/sidebar';
+import {
+  useStytchMemberSession,
+  useStytchOrganization,
+} from '@stytch/nextjs/b2b';
 import { useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from "next/link"
-import { FileText, PlusCircle, Star } from "lucide-react"
-import { Button } from "../../components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
-import { getRecentNotes, getFavoriteNotes } from "../../../lib/notesData"
+import Link from 'next/link';
+import { FileText, PlusCircle, Star } from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../components/ui/card';
+import { getRecentNotes, getFavoriteNotes } from '../../../lib/notesData';
 
 export default function DashboardPage() {
   const { session, isInitialized } = useStytchMemberSession();
@@ -27,7 +35,7 @@ export default function DashboardPage() {
   // Handle redirect when session is lost - use useEffect to avoid React warning
   useEffect(() => {
     if (isInitialized && !session) {
-      router.replace("/");
+      router.replace('/');
     }
   }, [isInitialized, session, router]);
 
@@ -49,11 +57,15 @@ export default function DashboardPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Quick Note</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Quick Note
+                  </CardTitle>
                   <PlusCircle className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xs text-muted-foreground">Jot down a quick thought or reminder.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Jot down a quick thought or reminder.
+                  </p>
                   <Button size="sm" className="w-full mt-4" asChild>
                     <Link href="/notes">New Note</Link>
                   </Button>
@@ -61,23 +73,41 @@ export default function DashboardPage() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Team Updates</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Team Updates
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xs text-muted-foreground">Last update from team members in {organization?.organization_name}.</p>
-                  <Button size="sm" variant="outline" className="w-full mt-4 bg-transparent" asChild>
+                  <p className="text-xs text-muted-foreground">
+                    Last update from team members in{' '}
+                    {organization?.organization_name}.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full mt-4 bg-transparent"
+                    asChild
+                  >
                     <Link href="/members">View Updates</Link>
                   </Button>
                 </CardContent>
               </Card>
               <Card className="md:col-span-2 lg:col-span-1">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">My Tasks</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    My Tasks
+                  </CardTitle>
                   <span className="text-xs text-muted-foreground">3 open</span>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xs text-muted-foreground">Tasks assigned to you across all projects.</p>
-                  <Button size="sm" variant="outline" className="w-full mt-4 bg-transparent">
+                  <p className="text-xs text-muted-foreground">
+                    Tasks assigned to you across all projects.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full mt-4 bg-transparent"
+                  >
                     View Tasks
                   </Button>
                 </CardContent>
@@ -94,9 +124,12 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {recentNotes.map((note) => (
+                    {recentNotes.map(note => (
                       <li key={note.id}>
-                        <Link href={`/notes?id=${note.id}`} className="text-sm hover:underline block">
+                        <Link
+                          href={`/notes?id=${note.id}`}
+                          className="text-sm hover:underline block"
+                        >
                           <div className="flex items-center justify-between">
                             <span>{note.title}</span>
                             <span className="text-xs text-muted-foreground">
@@ -107,7 +140,9 @@ export default function DashboardPage() {
                       </li>
                     ))}
                     {recentNotes.length === 0 && (
-                      <li className="text-sm text-muted-foreground">No recent notes</li>
+                      <li className="text-sm text-muted-foreground">
+                        No recent notes
+                      </li>
                     )}
                   </ul>
                 </CardContent>
@@ -121,9 +156,12 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {favoriteNotes.map((note) => (
+                    {favoriteNotes.map(note => (
                       <li key={note.id}>
-                        <Link href={`/notes?id=${note.id}`} className="text-sm hover:underline block">
+                        <Link
+                          href={`/notes?id=${note.id}`}
+                          className="text-sm hover:underline block"
+                        >
                           <div className="flex items-center justify-between">
                             <span>{note.title}</span>
                             {note.tags && note.tags.length > 0 && (
@@ -136,7 +174,9 @@ export default function DashboardPage() {
                       </li>
                     ))}
                     {favoriteNotes.length === 0 && (
-                      <li className="text-sm text-muted-foreground">No favorite notes</li>
+                      <li className="text-sm text-muted-foreground">
+                        No favorite notes
+                      </li>
                     )}
                   </ul>
                 </CardContent>
