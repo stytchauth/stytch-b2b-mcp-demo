@@ -18,11 +18,7 @@ const Dashboard = () => {
   }, [session?.roles]);
 
   if (!isInitialized) {
-    return (
-      <div className="loading-container">
-        Loading your workspace...
-      </div>
-    );
+    return null;
   }
 
   if (isInitialized && !session) {

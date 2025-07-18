@@ -1,60 +1,70 @@
 'use client';
 
 import { AppSidebar } from "../../components/app-sidebar"
-import { Button } from "../../components/ui/button"
 import { SidebarTrigger } from "../../components/ui/sidebar"
-import { Textarea } from "../../components/ui/textarea"
-import { MoreHorizontal, Star } from "lucide-react"
+import NotesEditor from "../../components/NotesEditor"
+import { getNoteById, getAllNotes, Note } from "../../../lib/notesData"
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useMemo } from 'react'
+import { useStytchMemberSession } from '@stytch/nextjs/b2b'
 
 export default function NotesPage() {
+  const { session, isInitialized } = useStytchMemberSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const noteId = searchParams.get('id') || 'team-notes' // Default to team-notes if no ID provided
+  
+  const note = useMemo(() => {
+    const foundNote = getNoteById(noteId)
+    
+    // If note not found, return a default note structure
+    if (!foundNote) {
+      return {
+        id: 'not-found',
+        title: 'Note Not Found',
+        content: `# Note Not Found
+
+The note with ID "${noteId}" could not be found.
+
+## Available Notes
+
+${getAllNotes().map(n => `- [${n.title}](/notes?id=${n.id})`).join('\n')}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isFavorite: false,
+        tags: ['error']
+      }
+    }
+    
+    return foundNote
+  }, [noteId])
+
+  if (!isInitialized) {
+    return null;
+  }
+
+  if (isInitialized && !session) {
+    router.replace("/");
+    return null;
+  }
+
+  const handleNoteUpdate = (updatedNote: Note) => {
+    // In a real app, you might want to update a global state or cache here
+    console.log('Note updated:', updatedNote)
+  }
+
   return (
     <div className="flex h-full">
       <AppSidebar />
-      <main className="flex-1 p-4 md:p-6">
-        <header className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden" />
-            <h1 className="text-2xl font-semibold">Team Notes</h1>
-            <Button variant="ghost" size="icon">
-              <Star className="w-5 h-5" />
-              <span className="sr-only">Favorite</span>
-            </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost">Share</Button>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="w-5 h-5" />
-              <span className="sr-only">More options</span>
-            </Button>
-          </div>
-        </header>
-        <div className="h-[calc(100%-4rem)]">
-          <Textarea
-            placeholder="Start writing your team notes here..."
-            className="w-full h-full text-base border-none resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            defaultValue={`# Team Notes
-
-This is your collaborative space for team notes and ideas.
-
-## Meeting Notes
-
-- **Date:** Today
-- **Attendees:** Team members
-- **Agenda:** 
-  - Review project progress
-  - Discuss upcoming features
-  - Plan next sprint
-
-## Action Items
-
-- [ ] Update project documentation
-- [ ] Schedule team review session
-- [ ] Prepare for next sprint planning
-
-## Ideas & Brainstorming
-
-Use this space to capture creative ideas and thoughts that emerge during collaboration.
-`}
+      <main className="flex-1 flex flex-col pr-0 max-w-full overflow-hidden">
+        <div className="flex items-center p-4 md:p-6 pb-0 pr-4 md:pr-6">
+          <SidebarTrigger className="md:hidden mr-2" />
+        </div>
+        <div className="flex-1" style={{ width: 'min(896px, calc(100vw - 2rem))' }}>
+          <NotesEditor 
+            note={note}
+            onNoteUpdate={handleNoteUpdate}
+            readOnly={false}
           />
         </div>
       </main>

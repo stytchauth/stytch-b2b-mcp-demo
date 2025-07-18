@@ -10,17 +10,7 @@ import { FileText, PlusCircle, Star } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
-
-const recentNotes = [
-  { title: "Getting Started", href: "/notes/getting-started" },
-  { title: "Project Roadmap Q3", href: "#" },
-  { title: "Meeting Notes - 2024-07-15", href: "#" },
-]
-
-const favoriteNotes = [
-  { title: "Company OKRs", href: "#" },
-  { title: "Design System Principles", href: "#" },
-]
+import { getRecentNotes, getFavoriteNotes } from "../../../lib/notesData"
 
 export default function DashboardPage() {
   const { session, isInitialized } = useStytchMemberSession();
@@ -31,12 +21,12 @@ export default function DashboardPage() {
     return session?.roles.includes('stytch_admin') ? 'admin' : 'member';
   }, [session?.roles]);
 
+  // Get actual notes data
+  const recentNotes = useMemo(() => getRecentNotes(3), []);
+  const favoriteNotes = useMemo(() => getFavoriteNotes(), []);
+
   if (!isInitialized) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-gray-600">Loading your workspace...</div>
-      </div>
-    );
+    return null;
   }
 
   if (isInitialized && !session) {
@@ -107,12 +97,20 @@ export default function DashboardPage() {
                 <CardContent>
                   <ul className="space-y-2">
                     {recentNotes.map((note) => (
-                      <li key={note.title}>
-                        <Link href={note.href} className="text-sm hover:underline">
-                          {note.title}
+                      <li key={note.id}>
+                        <Link href={`/notes?id=${note.id}`} className="text-sm hover:underline block">
+                          <div className="flex items-center justify-between">
+                            <span>{note.title}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {note.updatedAt.toLocaleDateString()}
+                            </span>
+                          </div>
                         </Link>
                       </li>
                     ))}
+                    {recentNotes.length === 0 && (
+                      <li className="text-sm text-muted-foreground">No recent notes</li>
+                    )}
                   </ul>
                 </CardContent>
               </Card>
@@ -126,12 +124,22 @@ export default function DashboardPage() {
                 <CardContent>
                   <ul className="space-y-2">
                     {favoriteNotes.map((note) => (
-                      <li key={note.title}>
-                        <Link href={note.href} className="text-sm hover:underline">
-                          {note.title}
+                      <li key={note.id}>
+                        <Link href={`/notes?id=${note.id}`} className="text-sm hover:underline block">
+                          <div className="flex items-center justify-between">
+                            <span>{note.title}</span>
+                            {note.tags && note.tags.length > 0 && (
+                              <span className="text-xs text-muted-foreground">
+                                #{note.tags[0]}
+                              </span>
+                            )}
+                          </div>
                         </Link>
                       </li>
                     ))}
+                    {favoriteNotes.length === 0 && (
+                      <li className="text-sm text-muted-foreground">No favorite notes</li>
+                    )}
                   </ul>
                 </CardContent>
               </Card>

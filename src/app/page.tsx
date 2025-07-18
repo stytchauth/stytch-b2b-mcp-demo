@@ -10,9 +10,9 @@ export default function Index() {
   const router = useRouter();
 
   const alreadyLoggedInRef = useRef<boolean>();
-  const hasSession = !!session;
   useEffect(() => {
     if (isInitialized && alreadyLoggedInRef.current === undefined) {
+      const hasSession = !!session;
       alreadyLoggedInRef.current = hasSession;
 
       if (hasSession) {
@@ -20,7 +20,12 @@ export default function Index() {
         router.replace('/dashboard');
       }
     }
-  }, [isInitialized, hasSession, router]);
+  }, [isInitialized, session, router]);
+
+  // Show loading state while initializing
+  if (!isInitialized) {
+    return null;
+  }
 
   return <Login />;
 }
