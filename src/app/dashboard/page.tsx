@@ -3,7 +3,7 @@
 import { AppSidebar } from "../../components/app-sidebar"
 import { SidebarInset, SidebarTrigger } from "../../components/ui/sidebar"
 import { useStytchMemberSession, useStytchOrganization } from '@stytch/nextjs/b2b';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link"
 import { FileText, PlusCircle, Star } from "lucide-react"
@@ -25,8 +25,15 @@ export default function DashboardPage() {
   const recentNotes = useMemo(() => getRecentNotes(3), []);
   const favoriteNotes = useMemo(() => getFavoriteNotes(), []);
 
+  // Handle redirect when session is lost - use useEffect to avoid React warning
+  useEffect(() => {
+    if (isInitialized && !session) {
+      router.replace("/");
+    }
+  }, [isInitialized, session, router]);
+
+  // Show loading or nothing while redirecting
   if (isInitialized && !session) {
-    router.replace("/");
     return null;
   }
 
@@ -57,7 +64,6 @@ export default function DashboardPage() {
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Team Updates</CardTitle>
                   <Avatar className="w-6 h-6">
-                    <AvatarImage src="/placeholder.svg?height=24&width=24" />
                     <AvatarFallback>V</AvatarFallback>
                   </Avatar>
                 </CardHeader>

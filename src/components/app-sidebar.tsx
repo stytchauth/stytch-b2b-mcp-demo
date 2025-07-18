@@ -56,9 +56,15 @@ export function AppSidebar() {
   const recentNotes = useMemo(() => getRecentNotes(3), [])
 
   const handleLogOut = () => {
-    stytch.session.revoke().then(() => {
-      router.replace('/')
-    })
+    stytch.session.revoke()
+      .then(() => {
+        router.replace('/')
+      })
+      .catch((error) => {
+        // If session is already invalid (401), still redirect to home
+        console.log('Session revoke failed (likely already expired):', error.message)
+        router.replace('/')
+      })
   }
 
   const isActive = (href: string) => {
