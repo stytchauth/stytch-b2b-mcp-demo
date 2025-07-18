@@ -18,11 +18,11 @@ const Notes = () => {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Notes</h1>
+        <h1 className="text-2xl font-semibold">Notes</h1>
         <p className="page-subtitle">Keep track of important information and ideas</p>
       </div>
       
-      <div className="admin-content-wrapper">
+      <div className="bg-card rounded-lg border border-border shadow-sm p-6 max-w-[1200px] w-full min-h-[500px]">
         <div style={{ padding: '24px' }}>
           {notes.length === 0 ? (
             <div style={{ 

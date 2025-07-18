@@ -218,7 +218,7 @@ export default function NotesEditor({ note, onNoteUpdate, onNoteDelete, readOnly
           />
         ) : (
           <div 
-            className="prose prose-sm prose-stone dark:prose-invert max-w-none w-full break-words"
+            className="prose prose-sm prose-stone max-w-none w-full break-words"
             style={{ 
               paddingLeft: 'clamp(1rem, 6vw, 8rem)', 
               paddingRight: '2rem', 
