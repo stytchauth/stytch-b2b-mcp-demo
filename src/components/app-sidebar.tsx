@@ -43,8 +43,9 @@ import {
 } from '@stytch/nextjs/b2b';
 import { useRouter } from 'next/navigation';
 import { getRecentNotes } from '../../lib/notesData';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import OrgSwitcher from './OrgSwitcher';
+import CreateTeamModal from './CreateTeamModal';
 
 const settingsItems = [
   { name: 'Members', href: '/members', icon: <Users className="w-4 h-4" /> },
@@ -65,6 +66,7 @@ export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isMobile } = useSidebar();
+  const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
 
   // Get recent notes for sidebar
   const recentNotes = useMemo(() => getRecentNotes(3), []);
@@ -113,7 +115,6 @@ export function AppSidebar() {
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{orgName}</span>
-                <span className="truncate text-xs">Workspace</span>
               </div>
               <ChevronDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -124,7 +125,10 @@ export function AppSidebar() {
             align="start"
             sideOffset={4}
           >
-            <OrgSwitcher />
+            <OrgSwitcher
+              key={organization?.organization_id || 'no-org'}
+              onCreateTeam={() => setIsCreateTeamModalOpen(true)}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarHeader>
@@ -243,6 +247,14 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
+      <CreateTeamModal
+        isOpen={isCreateTeamModalOpen}
+        onClose={() => setIsCreateTeamModalOpen(false)}
+        onSuccess={() => {
+          // Modal will handle session exchange, just close the modal
+          setIsCreateTeamModalOpen(false);
+        }}
+      />
     </Sidebar>
   );
 }

@@ -12,7 +12,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Loader2, Mail, Lock, Check, Plus } from 'lucide-react';
 
-const OrgSwitcher = () => {
+interface OrgSwitcherProps {
+  onCreateTeam?: () => void;
+}
+
+const OrgSwitcher: React.FC<OrgSwitcherProps> = ({ onCreateTeam }) => {
   const stytch = useStytchB2BClient();
   const { organization: currentOrganization } = useStytchOrganization();
   const { session } = useStytchMemberSession();
@@ -61,6 +65,12 @@ const OrgSwitcher = () => {
       router.push(pathname);
     } catch (error) {
       console.error('Failed to switch organization:', error);
+    }
+  };
+
+  const handleCreateTeam = () => {
+    if (onCreateTeam) {
+      onCreateTeam();
     }
   };
 
@@ -119,7 +129,7 @@ const OrgSwitcher = () => {
       )}
 
       <DropdownMenuSeparator />
-      <DropdownMenuItem>
+      <DropdownMenuItem onClick={handleCreateTeam} disabled={isLoading}>
         <Plus className="w-4 h-4 mr-2" />
         Create Team
       </DropdownMenuItem>
