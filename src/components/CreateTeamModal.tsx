@@ -103,8 +103,8 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
         <DialogHeader>
           <DialogTitle>Create New Team</DialogTitle>
           <DialogDescription>
-            Enter a name for your new team. You'll be automatically added as an
-            admin.
+            Enter a name for your new team. You&apos;ll be automatically added
+            as an admin.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreateOrganization}>
