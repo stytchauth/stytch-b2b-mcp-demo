@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the session token from cookies
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionToken =
       cookieStore.get('stytch_session')?.value ||
       cookieStore.get('stytch_session_jwt')?.value ||

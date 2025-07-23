@@ -145,7 +145,7 @@ ${
         loadNote();
       }
     }
-  }, [noteId, session, organization]);
+  }, [noteId, session, organization, note]);
 
   if (isInitialized && !session) {
     router.replace('/');

@@ -20,7 +20,7 @@ const client = new stytch.B2BClient({
 
 // Helper function to authenticate session and get user info
 async function authenticateSession() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionToken =
     cookieStore.get('stytch_session')?.value ||
     cookieStore.get('stytch_session_jwt')?.value ||

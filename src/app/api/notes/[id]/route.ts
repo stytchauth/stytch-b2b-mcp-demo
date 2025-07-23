@@ -15,7 +15,7 @@ const client = new stytch.B2BClient({
 
 // Helper function to authenticate session and get user info
 async function authenticateSession() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionToken =
     cookieStore.get('stytch_session')?.value ||
     cookieStore.get('stytch_session_jwt')?.value ||
@@ -39,11 +39,12 @@ async function authenticateSession() {
 // GET /api/notes/[id] - Get a specific note
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await initializeDatabase();
     const { member_id, organization_id } = await authenticateSession();
+    const { id } = await params;
 
     const db = getDb();
 
@@ -58,7 +59,7 @@ export async function GET(
         OR visibility = 'shared'
       )
     `,
-      [params.id, organization_id, member_id]
+      [id, organization_id, member_id]
     );
 
     if (result.rows.length === 0) {
@@ -91,11 +92,12 @@ export async function GET(
 // PUT /api/notes/[id] - Update a specific note
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await initializeDatabase();
     const { member_id, organization_id } = await authenticateSession();
+    const { id } = await params;
 
     const body = await request.json();
     const { title, content, visibility, is_favorite, tags } = body;
@@ -113,7 +115,7 @@ export async function PUT(
         OR visibility = 'shared'
       )
     `,
-      [params.id, organization_id, member_id]
+      [id, organization_id, member_id]
     );
 
     if (checkResult.rows.length === 0) {
@@ -183,7 +185,7 @@ export async function PUT(
     }
 
     updates.push(`updated_at = NOW()`);
-    values.push(params.id, organization_id, member_id);
+    values.push(id, organization_id, member_id);
 
     const result = await db.query(
       `
@@ -230,11 +232,12 @@ export async function PUT(
 // DELETE /api/notes/[id] - Delete a specific note
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await initializeDatabase();
     const { member_id, organization_id, roles } = await authenticateSession();
+    const { id } = await params;
 
     const db = getDb();
 
@@ -245,7 +248,7 @@ export async function DELETE(
       WHERE id = $1 
       AND organization_id = $2
     `,
-      [params.id, organization_id]
+      [id, organization_id]
     );
 
     if (noteResult.rows.length === 0) {
@@ -277,7 +280,7 @@ export async function DELETE(
       AND organization_id = $2
       RETURNING *
     `,
-      [params.id, organization_id]
+      [id, organization_id]
     );
 
     return NextResponse.json({ success: true });
