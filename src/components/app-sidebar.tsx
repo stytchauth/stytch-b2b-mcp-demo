@@ -42,10 +42,11 @@ import {
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
 import { useRouter } from 'next/navigation';
-import { getRecentNotes } from '../../lib/notesData';
-import { useMemo, useState } from 'react';
+import { getRecentNotes, Note, clearNotesCache } from '../../lib/notesData';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import OrgSwitcher from './OrgSwitcher';
 import CreateTeamModal from './CreateTeamModal';
+import { useNotes } from '../contexts/NotesContext';
 
 const settingsItems = [
   { name: 'Members', href: '/members', icon: <Users className="w-4 h-4" /> },
@@ -68,8 +69,44 @@ export function AppSidebar() {
   const { isMobile } = useSidebar();
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
 
-  // Get recent notes for sidebar
-  const recentNotes = useMemo(() => getRecentNotes(3), []);
+  // Use notes context for sidebar
+  const { recentNotes, setRecentNotes, addNote } = useNotes();
+
+  // Track the current organization ID to detect changes
+  const previousOrgIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const loadRecentNotes = async () => {
+      try {
+        const recent = await getRecentNotes(3);
+        setRecentNotes(recent);
+      } catch (error) {
+        console.error('Error loading recent notes:', error);
+      }
+    };
+
+    if (session && organization) {
+      const currentOrgId = organization.organization_id;
+
+      // Check if organization has changed
+      if (
+        previousOrgIdRef.current !== null &&
+        previousOrgIdRef.current !== currentOrgId
+      ) {
+        // Organization changed - clear notes and reload
+        setRecentNotes([]);
+        clearNotesCache(); // Clear cache for the new organization
+      }
+
+      // Update the tracked organization ID
+      previousOrgIdRef.current = currentOrgId;
+
+      // Load notes if we don't have any or if organization changed
+      if (recentNotes.length === 0) {
+        loadRecentNotes();
+      }
+    }
+  }, [session, organization, recentNotes.length, setRecentNotes]);
 
   const handleLogOut = () => {
     stytch.session
@@ -153,10 +190,43 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          <SidebarGroupAction>
-            <Link href="/notes">
-              <Plus className="size-4" />
-            </Link>
+          <SidebarGroupAction
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/notes/new', {
+                  method: 'POST',
+                });
+
+                if (!response.ok) {
+                  console.error('Failed to create note');
+                  return;
+                }
+
+                const data = await response.json();
+
+                // Convert API response to Note format and add to sidebar
+                const newNote: Note = {
+                  id: data.note.id,
+                  title: data.note.title,
+                  content: data.note.content,
+                  member_id: data.note.member_id,
+                  organization_id: data.note.organization_id,
+                  visibility: data.note.visibility,
+                  createdAt: new Date(data.note.created_at),
+                  updatedAt: new Date(data.note.updated_at),
+                  isFavorite: data.note.is_favorite,
+                  tags: data.note.tags || [],
+                };
+
+                addNote(newNote);
+
+                window.location.href = `/notes?id=${data.note.id}`;
+              } catch (error) {
+                console.error('Error creating new note:', error);
+              }
+            }}
+          >
+            <Plus className="size-4" />
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>

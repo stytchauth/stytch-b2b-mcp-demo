@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "migrate": "node scripts/migrate.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
@@ -21,6 +22,7 @@
     "@stytch/vanilla-js": "^5.25.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20.11.24",
+    "@types/pg": "^8.15.4",
     "@types/react": "18.2.61",
     "@types/react-dom": "18.2.19",
     "class-variance-authority": "^0.7.1",
@@ -29,6 +31,7 @@
     "eslint-config-next": "14.1.1",
     "lucide-react": "^0.525.0",
     "next": "13.4.6",
+    "pg": "^8.16.3",
     "prettier": "^3.2.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",

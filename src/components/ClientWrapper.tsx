@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { SidebarProvider } from './ui/sidebar';
 import StytchProvider from './StytchProvider';
+import { NotesProvider } from '../contexts/NotesContext';
 
 interface ClientWrapperProps {
   children: ReactNode;
@@ -15,7 +16,9 @@ export default function ClientWrapper({
 }: ClientWrapperProps) {
   return (
     <StytchProvider>
-      <SidebarProvider defaultOpen={defaultOpen}>{children}</SidebarProvider>
+      <NotesProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>{children}</SidebarProvider>
+      </NotesProvider>
     </StytchProvider>
   );
 }

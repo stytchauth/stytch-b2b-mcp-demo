@@ -4,7 +4,7 @@ import * as stytch from 'stytch';
 
 const STYTCH_PROJECT_ID = process.env.STYTCH_PROJECT_ID;
 const STYTCH_SECRET = process.env.STYTCH_SECRET;
-const STYTCH_PROJECT_ENV = process.env.NEXT_PUBLIC_STYTCH_PROJECT_ENV || 'test';
+const STYTCH_PROJECT_ENV = process.env.STYTCH_PROJECT_ENV || 'test';
 
 const client = new stytch.B2BClient({
   project_id: STYTCH_PROJECT_ID || '',

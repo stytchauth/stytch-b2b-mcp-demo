@@ -11,8 +11,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Star, Pencil, Check, Trash2 } from 'lucide-react';
+import {
+  MoreHorizontal,
+  Star,
+  Pencil,
+  Check,
+  Trash2,
+  Lock,
+  Users,
+} from 'lucide-react';
 import { Note, saveNote, deleteNote } from '../../lib/notesData';
+import { useNotes } from '../contexts/NotesContext';
 
 interface NotesEditorProps {
   note: Note;
@@ -30,6 +39,9 @@ export default function NotesEditor({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Use notes context to update sidebar
+  const { updateNote, removeNote } = useNotes();
 
   useEffect(() => {
     setCurrentNote(note);
@@ -58,6 +70,10 @@ export default function NotesEditor({
       });
       setCurrentNote(updatedNote);
       setHasUnsavedChanges(false);
+
+      // Update the sidebar immediately with the saved note
+      updateNote(updatedNote);
+
       onNoteUpdate?.(updatedNote);
     } catch (error) {
       console.error('Failed to save note:', error);
@@ -71,9 +87,31 @@ export default function NotesEditor({
     setCurrentNote(updatedNote);
     try {
       const savedNote = await saveNote(updatedNote);
+
+      // Update the sidebar immediately
+      updateNote(savedNote);
+
       onNoteUpdate?.(savedNote);
     } catch (error) {
       console.error('Failed to update favorite:', error);
+      setCurrentNote(currentNote);
+    }
+  };
+
+  const toggleVisibility = async () => {
+    const newVisibility: 'private' | 'shared' =
+      currentNote.visibility === 'private' ? 'shared' : 'private';
+    const updatedNote = { ...currentNote, visibility: newVisibility };
+    setCurrentNote(updatedNote);
+    try {
+      const savedNote = await saveNote(updatedNote);
+
+      // Update the sidebar immediately
+      updateNote(savedNote);
+
+      onNoteUpdate?.(savedNote);
+    } catch (error) {
+      console.error('Failed to update visibility:', error);
       setCurrentNote(currentNote);
     }
   };
@@ -99,6 +137,10 @@ export default function NotesEditor({
     setIsDeleting(true);
     try {
       await deleteNote(currentNote.id);
+
+      // Remove the note from the sidebar immediately
+      removeNote(currentNote.id);
+
       // Note deleted successfully - in a real app you might want to navigate away
     } catch (error) {
       console.error('Failed to delete note:', error);
@@ -133,6 +175,25 @@ export default function NotesEditor({
               <Star className="w-5 h-5" />
             )}
             <span className="sr-only">Favorite</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleVisibility}
+            title={
+              currentNote.visibility === 'private'
+                ? 'Make shared'
+                : 'Make private'
+            }
+          >
+            {currentNote.visibility === 'private' ? (
+              <Lock className="w-5 h-5" />
+            ) : (
+              <Users className="w-5 h-5" />
+            )}
+            <span className="sr-only">
+              {currentNote.visibility === 'private' ? 'Private' : 'Shared'}
+            </span>
           </Button>
         </div>
         <div className="flex items-center gap-2">
