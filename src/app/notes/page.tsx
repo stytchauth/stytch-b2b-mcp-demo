@@ -116,7 +116,7 @@ export default function NotesPage() {
             </header>
             <div
               className="flex-1 flex items-center justify-center text-center px-4 md:px-6"
-              style={{ alignItems: 'flex-start', paddingTop: '15vh' }}
+              style={{ alignItems: 'flex-start', paddingTop: '10vh' }}
             >
               <div className="w-full max-w-2xl">
                 <FileText className="w-16 h-16 text-blue-400 mb-4 mx-auto" />
@@ -130,29 +130,24 @@ export default function NotesPage() {
 
                 {availableNotes.length > 0 && (
                   <div className="mb-6 w-full max-w-md mx-auto">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      Your Notes
+                    <h3 className="text-base font-medium text-gray-900 mb-2">
+                      Recent Notes
                     </h3>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {availableNotes.slice(0, 5).map(note => (
                         <Link
                           key={note.id}
                           href={`/notes?id=${note.id}`}
-                          className="block p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                          className="block px-3 py-2 bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors text-left"
                         >
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-gray-900 text-sm truncate">
                             {note.title}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            Updated {note.updatedAt.toLocaleDateString()}
+                          <div className="text-xs text-gray-500">
+                            {note.updatedAt.toLocaleDateString()}
                           </div>
                         </Link>
                       ))}
-                      {availableNotes.length > 5 && (
-                        <p className="text-sm text-gray-500 pt-2">
-                          ...and {availableNotes.length - 5} more notes
-                        </p>
-                      )}
                     </div>
                   </div>
                 )}
@@ -191,7 +186,7 @@ export default function NotesPage() {
             </header>
             <div
               className="flex-1 flex items-center justify-center text-center px-4 md:px-6"
-              style={{ alignItems: 'flex-start', paddingTop: '15vh' }}
+              style={{ alignItems: 'flex-start', paddingTop: '10vh' }}
             >
               <div className="w-full max-w-2xl">
                 <FileText className="w-16 h-16 text-gray-400 mb-4 mx-auto" />
@@ -236,7 +231,7 @@ export default function NotesPage() {
             </header>
             <div
               className="flex-1 flex items-center justify-center text-center px-4 md:px-6"
-              style={{ alignItems: 'flex-start', paddingTop: '15vh' }}
+              style={{ alignItems: 'flex-start', paddingTop: '10vh' }}
             >
               <div className="w-full max-w-2xl">
                 <FileText className="w-16 h-16 text-red-400 mb-4 mx-auto" />
