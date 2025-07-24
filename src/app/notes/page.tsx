@@ -194,7 +194,7 @@ export default function NotesPage() {
                   Note Not Found
                 </h1>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  The note with ID "{noteId}" could not be found. It may have
+                  The note with ID &quot;{noteId}&quot; could not be found. It may have
                   been deleted or you might not have permission to view it.
                 </p>
                 <div className="flex gap-3 justify-center">
