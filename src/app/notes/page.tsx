@@ -1,7 +1,7 @@
 'use client';
 
 import { AppSidebar } from '../../components/app-sidebar';
-import { SidebarTrigger } from '../../components/ui/sidebar';
+import { SidebarInset, SidebarTrigger } from '../../components/ui/sidebar';
 import NotesEditor from '../../components/NotesEditor';
 import {
   getNoteById,
@@ -15,6 +15,9 @@ import {
   useStytchMemberSession,
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
+import { Button } from '../../components/ui/button';
+import { FileText, Home, PlusCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export default function NotesPage() {
   const { session, isInitialized } = useStytchMemberSession();
@@ -24,102 +27,43 @@ export default function NotesPage() {
   const noteId = searchParams.get('id'); // Get note ID from URL params
 
   const [note, setNote] = useState<Note | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [noteNotFound, setNoteNotFound] = useState(false);
+  const [noNoteSelected, setNoNoteSelected] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
+  const [availableNotes, setAvailableNotes] = useState<Note[]>([]);
 
   // Track the current organization ID to detect changes
   const previousOrgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const loadNote = async () => {
-      setLoading(true);
       try {
+        setNoteNotFound(false);
+        setNoNoteSelected(false);
+        setLoadingError(false);
+
         if (!noteId) {
-          // No note ID provided, show available notes
+          // No note ID provided, show available notes selection UI
           const allNotes = await getAllNotes();
-          setNote({
-            id: 'no-note-selected',
-            title: 'Select a Note',
-            content: `# Welcome to Your Notes! 📝
-
-Please select a note from the sidebar or create a new one.
-
-## Your Notes
-
-${
-  allNotes.length > 0
-    ? allNotes.map(n => `- [${n.title}](/notes?id=${n.id})`).join('\n')
-    : 'No notes yet. Create your first note by clicking "New Note" in the dashboard!'
-}
-
-## Get Started
-
-- **Create private notes** for your personal thoughts
-- **Create shared notes** to collaborate with your team
-- **Use tags** to organize your notes
-- **Star favorites** for quick access`,
-            member_id: '',
-            organization_id: '',
-            visibility: 'private',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            isFavorite: false,
-            tags: ['welcome'],
-          });
+          setAvailableNotes(allNotes);
+          setNoNoteSelected(true);
+          setNote(null);
           return;
         }
 
         const foundNote = await getNoteById(noteId!);
 
-        // If note not found, create a default note structure
+        // If note not found, set the not found state
         if (!foundNote) {
-          const allNotes = await getAllNotes();
-          setNote({
-            id: 'not-found',
-            title: 'Note Not Found',
-            content: `# Note Not Found
-
-The note with ID "${noteId}" could not be found. This might happen if:
-
-- The note was deleted
-- You don't have permission to view it
-- The note ID is invalid
-
-## Available Notes
-
-${
-  allNotes.length > 0
-    ? allNotes.map(n => `- [${n.title}](/notes?id=${n.id})`).join('\n')
-    : 'No notes available. Create your first note!'
-}`,
-            member_id: '',
-            organization_id: '',
-            visibility: 'private',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            isFavorite: false,
-            tags: ['error'],
-          });
+          setNoteNotFound(true);
+          setNote(null);
         } else {
           setNote(foundNote);
         }
       } catch (error) {
         console.error('Error loading note:', error);
-        // Set an error note
-        setNote({
-          id: 'error',
-          title: 'Error Loading Note',
-          content:
-            '# Error Loading Note\n\nThere was an error loading this note. Please try again or check your connection.',
-          member_id: '',
-          organization_id: '',
-          visibility: 'private',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          isFavorite: false,
-          tags: ['error'],
-        });
-      } finally {
-        setLoading(false);
+        setLoadingError(true);
+        setNote(null);
       }
     };
 
@@ -135,17 +79,19 @@ ${
         // Organization changed - clear cache and note, then reload
         clearNotesCache();
         setNote(null);
+        setNoteNotFound(false);
+        setNoNoteSelected(false);
+        setLoadingError(false);
+        setAvailableNotes([]);
       }
 
       // Update the tracked organization ID
       previousOrgIdRef.current = currentOrgId;
 
-      // Load note if we don't have one or if organization changed
-      if (!note || orgChanged) {
-        loadNote();
-      }
+      // Always load note when noteId changes or organization changes
+      loadNote();
     }
-  }, [noteId, session, organization, note]);
+  }, [noteId, session, organization]);
 
   if (isInitialized && !session) {
     router.replace('/');
@@ -158,41 +104,205 @@ ${
     console.log('Note updated:', updatedNote);
   };
 
-  // Show loading state while note is being fetched
-  if (loading || !note) {
+  // Show no note selected page
+  if (noNoteSelected) {
     return (
-      <div className="flex h-full">
+      <>
         <AppSidebar />
-        <main className="flex-1 p-4 md:p-6">
-          <header className="flex items-center mb-4">
-            <SidebarTrigger className="md:hidden mr-2" />
-          </header>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-muted-foreground">Loading note...</div>
-          </div>
-        </main>
-      </div>
+        <SidebarInset>
+          <main className="flex-1 flex flex-col">
+            <header className="flex items-center p-4 md:p-6 pb-0">
+              <SidebarTrigger className="md:hidden mr-2" />
+            </header>
+            <div
+              className="flex-1 flex items-center justify-center text-center px-4 md:px-6"
+              style={{ alignItems: 'flex-start', paddingTop: '15vh' }}
+            >
+              <div className="w-full max-w-2xl">
+                <FileText className="w-16 h-16 text-blue-400 mb-4 mx-auto" />
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                  Welcome to Your Notes! 📝
+                </h1>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Please select a note from the sidebar or create a new one to
+                  get started.
+                </p>
+
+                {availableNotes.length > 0 && (
+                  <div className="mb-6 w-full max-w-md mx-auto">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">
+                      Your Notes
+                    </h3>
+                    <div className="space-y-2">
+                      {availableNotes.slice(0, 5).map(note => (
+                        <Link
+                          key={note.id}
+                          href={`/notes?id=${note.id}`}
+                          className="block p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                        >
+                          <div className="font-medium text-gray-900">
+                            {note.title}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Updated {note.updatedAt.toLocaleDateString()}
+                          </div>
+                        </Link>
+                      ))}
+                      {availableNotes.length > 5 && (
+                        <p className="text-sm text-gray-500 pt-2">
+                          ...and {availableNotes.length - 5} more notes
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3 justify-center">
+                  <Button asChild>
+                    <Link href="/dashboard">
+                      <PlusCircle className="w-4 h-4 mr-2" />
+                      Create New Note
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/dashboard">
+                      <Home className="w-4 h-4 mr-2" />
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </main>
+        </SidebarInset>
+      </>
+    );
+  }
+
+  // Show note not found page
+  if (noteNotFound) {
+    return (
+      <>
+        <AppSidebar />
+        <SidebarInset>
+          <main className="flex-1 flex flex-col">
+            <header className="flex items-center p-4 md:p-6 pb-0">
+              <SidebarTrigger className="md:hidden mr-2" />
+            </header>
+            <div
+              className="flex-1 flex items-center justify-center text-center px-4 md:px-6"
+              style={{ alignItems: 'flex-start', paddingTop: '15vh' }}
+            >
+              <div className="w-full max-w-2xl">
+                <FileText className="w-16 h-16 text-gray-400 mb-4 mx-auto" />
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                  Note Not Found
+                </h1>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  The note with ID "{noteId}" could not be found. It may have
+                  been deleted or you might not have permission to view it.
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button asChild>
+                    <Link href="/dashboard">
+                      <Home className="w-4 h-4 mr-2" />
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/notes">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Browse Notes
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </main>
+        </SidebarInset>
+      </>
+    );
+  }
+
+  // Show loading error page
+  if (loadingError) {
+    return (
+      <>
+        <AppSidebar />
+        <SidebarInset>
+          <main className="flex-1 flex flex-col">
+            <header className="flex items-center p-4 md:p-6 pb-0">
+              <SidebarTrigger className="md:hidden mr-2" />
+            </header>
+            <div
+              className="flex-1 flex items-center justify-center text-center px-4 md:px-6"
+              style={{ alignItems: 'flex-start', paddingTop: '15vh' }}
+            >
+              <div className="w-full max-w-2xl">
+                <FileText className="w-16 h-16 text-red-400 mb-4 mx-auto" />
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                  Error Loading Note
+                </h1>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  There was an error loading this note. Please check your
+                  connection and try again.
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button onClick={() => window.location.reload()}>
+                    Try Again
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/dashboard">
+                      <Home className="w-4 h-4 mr-2" />
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </main>
+        </SidebarInset>
+      </>
+    );
+  }
+
+  // Show fallback if no note is loaded yet
+  if (!note) {
+    return (
+      <>
+        <AppSidebar />
+        <SidebarInset>
+          <main className="flex-1 flex flex-col">
+            <header className="flex items-center p-4 md:p-6 pb-0">
+              <SidebarTrigger className="md:hidden mr-2" />
+            </header>
+            <div className="flex-1"></div>
+          </main>
+        </SidebarInset>
+      </>
     );
   }
 
   return (
-    <div className="flex h-full">
+    <>
       <AppSidebar />
-      <main className="flex-1 p-4 md:p-6">
-        <header className="flex items-center mb-4">
-          <SidebarTrigger className="md:hidden mr-2" />
-        </header>
-        <div
-          className="h-[calc(100%-4rem)]"
-          style={{ width: 'min(896px, calc(100vw - 2rem))' }}
-        >
-          <NotesEditor
-            note={note}
-            onNoteUpdate={handleNoteUpdate}
-            readOnly={false}
-          />
-        </div>
-      </main>
-    </div>
+      <SidebarInset>
+        <main className="flex-1 p-4 md:p-6">
+          <header className="flex items-center mb-4">
+            <SidebarTrigger className="md:hidden mr-2" />
+          </header>
+          <div
+            className="h-[calc(100%-4rem)]"
+            style={{ width: 'min(896px, calc(100vw - 2rem))' }}
+          >
+            <NotesEditor
+              note={note}
+              onNoteUpdate={handleNoteUpdate}
+              readOnly={false}
+            />
+          </div>
+        </main>
+      </SidebarInset>
+    </>
   );
 }
