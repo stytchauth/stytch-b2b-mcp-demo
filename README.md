@@ -25,31 +25,65 @@ Follow the steps below to get this application fully functional and running usin
 
 3. Navigate to [API Keys](https://stytch.com/dashboard/api-keys). You will need the `project_id`, `secret`, and `public_token` values found on this page later on.
 
-### On your machine
+### Database Setup (Neon + Branch-based Development)
 
-In your terminal clone the project and install dependencies:
+This project uses a branch-based development workflow with Neon PostgreSQL. Each developer gets their own database branch for isolated development.
+
+#### Prerequisites
+
+1. **Install Neon CLI**: Follow the [Neon CLI installation guide](https://neon.com/docs/reference/cli-install)
+2. **Authenticate**: Run `neon auth` to log in to your Neon account
+
+#### Quick Setup (Automated)
 
 ```bash
+# Clone and install dependencies
 git clone https://github.com/stytchauth/stytch-b2b-nextjs-quickstart-example.git
 cd stytch-b2b-nextjs-quickstart-example
-# Install dependencies using npm.
 npm i
+
+# Create your personal development branch and get connection details
+npm run setup-dev
 ```
 
-Next, create `.env.local` file by running the command below which copies the contents of `.env.template`.
+The setup script will:
+- Create a unique development branch for you
+- Set up database tables
+- Output the environment variables you need
+
+#### Manual Setup (Alternative)
+
+If you prefer to set up manually:
 
 ```bash
+# Copy the environment template
 cp .env.template .env.local
+
+# Create your own development branch
+neon branches create --project-id late-silence-21816472 --name dev-yourname --parent main
+
+# Get connection string for your branch
+neon connection-string --project-id late-silence-21816472 --branch dev-yourname --database-name neondb --pooled
+
+# Set up database tables
+DATABASE_URL="your-connection-string" npm run migrate
 ```
 
-Open `.env.local` in the text editor of your choice, and set the environment variables using the `project_id`, `secret`, and `public_token` found on [API Keys](https://stytch.com/dashboard/api-keys). Leave the `STYTCH_PROJECT_ENV` value as `test`.
+### Environment Configuration
 
-```
-# This is what a completed .env.local file will look like
+Open `.env.local` in your editor and set the Stytch credentials from [API Keys](https://stytch.com/dashboard/api-keys), plus the database URLs from your branch setup:
+
+```env
+# Stytch Configuration
 STYTCH_PROJECT_ENV=test
 STYTCH_PROJECT_ID=project-test-00000000-0000-1234-abcd-abcdef1234
 STYTCH_SECRET=secret-test-12345678901234567890abcdabcd
 NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN=public-token-test-abcd123-0000-0000-abcd-1234567abc
+
+# Database Configuration (from setup-dev script output)
+DATABASE_URL=postgresql://your-branch-connection-string
+DATABASE_URL_UNPOOLED=postgresql://your-unpooled-connection-string
+# ... (other database variables as provided by setup script)
 ```
 
 ## Running locally

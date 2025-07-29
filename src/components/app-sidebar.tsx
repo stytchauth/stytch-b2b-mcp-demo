@@ -42,7 +42,7 @@ import {
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
 import { useRouter } from 'next/navigation';
-import { getRecentNotes, Note, clearNotesCache } from '../../lib/notesData';
+import { getRecentNotes, Note, clearNotesCache } from '@/lib/notesData';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import OrgSwitcher from './OrgSwitcher';
 import CreateTeamModal from './CreateTeamModal';
@@ -116,10 +116,6 @@ export function AppSidebar() {
       })
       .catch(error => {
         // If session is already invalid (401), still redirect to home
-        console.log(
-          'Session revoke failed (likely already expired):',
-          error.message
-        );
         router.replace('/');
       });
   };

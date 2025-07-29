@@ -22,7 +22,7 @@ import {
   getFavoriteNotes,
   Note,
   clearNotesCache,
-} from '../../../lib/notesData';
+} from '@/lib/notesData';
 
 export default function DashboardPage() {
   const { session, isInitialized } = useStytchMemberSession();
@@ -121,12 +121,9 @@ export default function DashboardPage() {
                     className="w-full mt-4"
                     onClick={async () => {
                       try {
-                        console.log('Creating new note...');
                         const response = await fetch('/api/notes/new', {
                           method: 'POST',
                         });
-
-                        console.log('Response status:', response.status);
 
                         if (!response.ok) {
                           const errorData = await response.json();
@@ -138,7 +135,6 @@ export default function DashboardPage() {
                         }
 
                         const data = await response.json();
-                        console.log('Created note:', data.note);
                         router.push(`/notes?id=${data.note.id}`);
                       } catch (error) {
                         console.error('Error creating new note:', error);

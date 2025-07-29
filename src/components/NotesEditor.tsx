@@ -20,7 +20,7 @@ import {
   Lock,
   Users,
 } from 'lucide-react';
-import { Note, saveNote, deleteNote } from '../../lib/notesData';
+import { Note, saveNote, deleteNote } from '@/lib/notesData';
 import { useNotes } from '../contexts/NotesContext';
 
 interface NotesEditorProps {

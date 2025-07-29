@@ -1,44 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import * as stytch from 'stytch';
+import { authenticateSession } from '@/lib/auth';
 import {
   getDb,
   initializeDatabase,
   dbRowToNote,
-  DatabaseNote,
-} from '../../../../lib/db';
+} from '@/lib/db';
 
-const STYTCH_PROJECT_ID = process.env.STYTCH_PROJECT_ID;
-const STYTCH_SECRET = process.env.STYTCH_SECRET;
-const STYTCH_PROJECT_ENV = process.env.STYTCH_PROJECT_ENV || 'test';
 
-const client = new stytch.B2BClient({
-  project_id: STYTCH_PROJECT_ID || '',
-  secret: STYTCH_SECRET || '',
-  env: STYTCH_PROJECT_ENV === 'live' ? stytch.envs.live : stytch.envs.test,
-});
-
-// Helper function to authenticate session and get user info
-async function authenticateSession() {
-  const cookieStore = await cookies();
-  const sessionToken =
-    cookieStore.get('stytch_session')?.value ||
-    cookieStore.get('stytch_session_jwt')?.value ||
-    cookieStore.get('stytch_session_jwt_test')?.value;
-
-  if (!sessionToken) {
-    throw new Error('No active session found');
-  }
-
-  const sessionResponse = await client.sessions.authenticate({
-    session_token: sessionToken,
-  });
-
-  return {
-    member_id: sessionResponse.member.member_id,
-    organization_id: sessionResponse.organization.organization_id,
-  };
-}
 
 // GET /api/notes - Get all notes accessible to the current user
 export async function GET(request: NextRequest) {
@@ -47,7 +15,11 @@ export async function GET(request: NextRequest) {
     await initializeDatabase();
 
     // Authenticate session
-    const { member_id, organization_id } = await authenticateSession();
+    const sessionResponse = await authenticateSession();
+    const { member_id, organization_id } = { 
+      member_id: sessionResponse.member.member_id, 
+      organization_id: sessionResponse.organization.organization_id 
+    };
 
     const db = getDb();
 
@@ -94,7 +66,11 @@ export async function POST(request: NextRequest) {
     await initializeDatabase();
 
     // Authenticate session
-    const { member_id, organization_id } = await authenticateSession();
+    const sessionResponse = await authenticateSession();
+    const { member_id, organization_id } = { 
+      member_id: sessionResponse.member.member_id, 
+      organization_id: sessionResponse.organization.organization_id 
+    };
 
     const body = await request.json();
     const {

@@ -101,7 +101,7 @@ export default function NotesPage() {
   const handleNoteUpdate = (updatedNote: Note) => {
     // Update the note in state and invalidate cache
     setNote(updatedNote);
-    console.log('Note updated:', updatedNote);
+    
   };
 
   // Show no note selected page

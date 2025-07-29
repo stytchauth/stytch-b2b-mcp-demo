@@ -9,7 +9,8 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "migrate": "node scripts/migrate.js"
+    "migrate": "npx tsx scripts/migrate.ts",
+    "setup-dev": "node scripts/setup-dev-branch.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
@@ -34,7 +35,6 @@
     "prettier": "^3.2.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "stytch": "^12.26.0",
@@ -45,6 +45,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.20.3"
   }
 }

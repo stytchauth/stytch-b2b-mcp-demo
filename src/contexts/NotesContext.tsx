@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Note } from '../../lib/notesData';
+import { Note } from '@/lib/notesData';
 
 interface NotesContextType {
   recentNotes: Note[];
