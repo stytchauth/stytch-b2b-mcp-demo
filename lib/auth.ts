@@ -18,7 +18,7 @@ export async function authenticateSession() {
   const sessionCookie = cookieStore.get("stytch_session");
 
   if (!sessionCookie) {
-    redirect("/");
+    throw new Error('No active session found');
   }
 
   let session;
@@ -28,7 +28,7 @@ export async function authenticateSession() {
     });
   } catch (error) {
     console.error('Session authentication error. Redirecting to login.');
-    redirect("/");
+    throw new Error('No active session found');
   }
 
   return session;

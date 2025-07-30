@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
     // Handle session authentication errors
     if (
       error.error_type === 'session_not_found' ||
-      error.status_code === 401
+      error.status_code === 401 ||
+      error.message === 'No active session found'
     ) {
       return NextResponse.json(
         { error: 'Invalid session - please log in again' },
