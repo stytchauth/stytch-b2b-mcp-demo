@@ -48,16 +48,16 @@ npm run setup-dev
 
 The setup script will:
 - Create a unique development branch for you
+- Write database configuration to your .env.local file
 - Set up database tables
-- Output the environment variables you need
 
 #### Manual Setup (Alternative)
 
 If you prefer to set up manually:
 
 ```bash
-# Copy the environment template
-cp .env.template .env.local
+# Create your .env.local file
+touch .env.local
 
 # Create your own development branch
 neon branches create --project-id late-silence-21816472 --name dev-yourname --parent main
@@ -80,10 +80,9 @@ STYTCH_PROJECT_ID=project-test-00000000-0000-1234-abcd-abcdef1234
 STYTCH_SECRET=secret-test-12345678901234567890abcdabcd
 NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN=public-token-test-abcd123-0000-0000-abcd-1234567abc
 
-# Database Configuration (from setup-dev script output)
+# Database Configuration
 DATABASE_URL=postgresql://your-branch-connection-string
 DATABASE_URL_UNPOOLED=postgresql://your-unpooled-connection-string
-# ... (other database variables as provided by setup script)
 ```
 
 ## Running locally

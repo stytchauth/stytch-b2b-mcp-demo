@@ -7,14 +7,11 @@ const path = require('path');
 const PROJECT_ID = 'late-silence-21816472';
 
 function runCommand(command, description) {
-  console.log(`\n${description}...`);
   try {
     const output = execSync(command, { encoding: 'utf8', stdio: 'pipe' });
     return output.trim();
   } catch (error) {
     console.error(`Error: ${error.message}`);
-    if (error.stdout) console.log('stdout:', error.stdout);
-    if (error.stderr) console.log('stderr:', error.stderr);
     throw error;
   }
 }
@@ -33,8 +30,6 @@ async function main() {
   // Get developer name for branch naming
   const userName = getUserName();
   const branchName = `dev-${userName}-${Date.now()}`;
-  
-  console.log(`Creating branch: ${branchName}`);
 
   try {
     // Check if neon CLI is available
@@ -57,33 +52,29 @@ async function main() {
       'Getting unpooled connection string'
     );
 
-    // Parse connection details for individual parameters
-    const url = new URL(pooledConnectionString);
-    const host = url.hostname;
-    const unpooledUrl = new URL(unpooledConnectionString);
-    const unpooledHost = unpooledUrl.hostname;
+
+
+    // Check if .env.local exists
+    const envLocalPath = path.join(process.cwd(), '.env.local');
+    if (!fs.existsSync(envLocalPath)) {
+      throw new Error('.env.local file not found. Please create a .env.local file first.');
+    }
 
     console.log('\n✅ Branch created successfully!');
-    console.log('\n📝 Update your .env.local file with these values:\n');
+    console.log('\n📝 Writing database configuration to .env.local...');
 
-    console.log(`# Database Configuration - Your Personal Development Branch`);
-    console.log(`DATABASE_URL=${pooledConnectionString}`);
-    console.log(`DATABASE_URL_UNPOOLED=${unpooledConnectionString}`);
-    console.log(`PGHOST=${host}`);
-    console.log(`PGHOST_UNPOOLED=${unpooledHost}`);
-    console.log(`PGUSER=${url.username}`);
-    console.log(`PGDATABASE=${url.pathname.slice(1)}`);
-    console.log(`PGPASSWORD=${url.password}`);
-    console.log(`POSTGRES_URL=${pooledConnectionString}`);
-    console.log(`POSTGRES_URL_NON_POOLING=${unpooledConnectionString}`);
-    console.log(`POSTGRES_HOST=${host}`);
-    console.log(`POSTGRES_PASSWORD=${url.password}`);
-    console.log(`POSTGRES_DATABASE=${url.pathname.slice(1)}`);
-    console.log(`POSTGRES_URL_NO_SSL=${pooledConnectionString.replace('?sslmode=require&channel_binding=require', '')}`);
-    console.log(`POSTGRES_PRISMA_URL=${pooledConnectionString}`);
+    // Prepare environment variables
+    const envVars = [
+      `# Database Configuration - Your Personal Development Branch`,
+      `DATABASE_URL=${pooledConnectionString}`,
+      `DATABASE_URL_UNPOOLED=${unpooledConnectionString}`,
+      '' // Empty line at the end
+    ].join('\n');
+
+    // Write to .env.local
+    fs.appendFileSync(envLocalPath, '\n' + envVars);
 
     // Initialize database tables
-    console.log('\n🗃️  Initializing database tables...');
     runCommand(
       `DATABASE_URL="${pooledConnectionString}" npm run migrate`,
       'Setting up database tables'
@@ -91,7 +82,7 @@ async function main() {
 
     console.log('\n🎉 Setup complete!');
     console.log('\nNext steps:');
-    console.log('1. Copy the environment variables above to your .env.local file');
+    console.log('1. Environment variables have been written to your .env.local file');
     console.log('2. Run: npm run dev');
     console.log('3. Your app will now use your personal development database branch');
     console.log(`\nYour branch name: ${branchName}`);
@@ -103,6 +94,7 @@ async function main() {
     console.log('1. Neon CLI is installed and authenticated');
     console.log('2. You have access to the Neon project');
     console.log('3. You have permission to create branches');
+    console.log('4. .env.local file exists in the project root');
     process.exit(1);
   }
 }
@@ -111,4 +103,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { main }; 
+module.exports = { main };
