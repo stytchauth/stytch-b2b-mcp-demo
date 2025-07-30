@@ -27,7 +27,7 @@ export async function authenticateSession() {
       session_token: sessionCookie?.value,
     });
   } catch (error) {
-    console.error('Session authentication error:', error);
+    console.error('Session authentication error. Redirecting to login.');
     redirect("/");
   }
 

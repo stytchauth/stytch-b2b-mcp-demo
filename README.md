@@ -33,6 +33,11 @@ This project uses a branch-based development workflow with Neon PostgreSQL. Each
 
 1. **Install Neon CLI**: Follow the [Neon CLI installation guide](https://neon.com/docs/reference/cli-install)
 2. **Authenticate**: Run `neon auth` to log in to your Neon account
+3. **Set Project ID**: Set your Neon project ID as an environment variable:
+   ```bash
+   export NEON_PROJECT_ID="your-project-id"
+   ```
+   You can find your project ID by running `neon projects list` or in the Neon dashboard.
 
 #### Quick Setup (Automated)
 
@@ -60,10 +65,10 @@ If you prefer to set up manually:
 touch .env.local
 
 # Create your own development branch
-neon branches create --project-id late-silence-21816472 --name dev-yourname --parent main
+neon branches create --project-id $NEON_PROJECT_ID --name dev-yourname --parent main
 
 # Get connection string for your branch
-neon connection-string --project-id late-silence-21816472 --branch dev-yourname --database-name neondb --pooled
+neon connection-string --project-id $NEON_PROJECT_ID --branch dev-yourname --database-name neondb --pooled
 
 # Set up database tables
 DATABASE_URL="your-connection-string" npm run migrate

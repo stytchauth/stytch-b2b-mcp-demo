@@ -4,7 +4,19 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_ID = 'late-silence-21816472';
+// Get project ID from environment variable
+const PROJECT_ID = process.env.NEON_PROJECT_ID;
+
+if (!PROJECT_ID) {
+  console.error('❌ Error: NEON_PROJECT_ID environment variable is required');
+  console.log('\nPlease set your Neon project ID:');
+  console.log('export NEON_PROJECT_ID="your-project-id"');
+  console.log('\nOr add it to your shell profile (.bashrc, .zshrc, etc.):');
+  console.log('echo "export NEON_PROJECT_ID=your-project-id" >> ~/.zshrc');
+  console.log('\nYou can find your project ID in the Neon dashboard or by running:');
+  console.log('neon projects list');
+  process.exit(1);
+}
 
 function runCommand(command, description) {
   try {
