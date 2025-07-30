@@ -9,7 +9,7 @@ import {
 import { useMemo, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FileText, PlusCircle, Star } from 'lucide-react';
+import { FileText, PlusCircle, Star, Lock } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import {
   Card,
@@ -36,7 +36,6 @@ export default function DashboardPage() {
   // Get actual notes data
   const [recentNotes, setRecentNotes] = useState<Note[]>([]);
   const [favoriteNotes, setFavoriteNotes] = useState<Note[]>([]);
-  const [notesLoading, setNotesLoading] = useState(true);
 
   // Track the current organization ID to detect changes
   const previousOrgIdRef = useRef<string | null>(null);
@@ -44,7 +43,6 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadNotes = async () => {
       try {
-        setNotesLoading(true);
         const [recent, favorites] = await Promise.all([
           getRecentNotes(3),
           getFavoriteNotes(),
@@ -53,8 +51,6 @@ export default function DashboardPage() {
         setFavoriteNotes(favorites);
       } catch (error) {
         console.error('Error loading notes:', error);
-      } finally {
-        setNotesLoading(false);
       }
     };
 
@@ -208,8 +204,13 @@ export default function DashboardPage() {
                           className="text-sm hover:underline block"
                         >
                           <div className="flex items-center justify-between">
-                            <span>{note.title}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="truncate">{note.title}</span>
+                              {note.visibility === 'private' && (
+                                <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground flex-shrink-0">
                               {note.updatedAt.toLocaleDateString()}
                             </span>
                           </div>
@@ -240,9 +241,14 @@ export default function DashboardPage() {
                           className="text-sm hover:underline block"
                         >
                           <div className="flex items-center justify-between">
-                            <span>{note.title}</span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="truncate">{note.title}</span>
+                              {note.visibility === 'private' && (
+                                <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                              )}
+                            </div>
                             {note.tags && note.tags.length > 0 && (
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-muted-foreground flex-shrink-0">
                                 #{note.tags[0]}
                               </span>
                             )}

@@ -12,6 +12,7 @@ import {
   Users,
   Shield,
   Grid,
+  Lock,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -239,7 +240,12 @@ export function AppSidebar() {
                   >
                     <Link href={`/notes?id=${note.id}`}>
                       <FileText className="w-4 h-4" />
-                      <span className="truncate">{note.title}</span>
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        <span className="truncate">{note.title}</span>
+                        {note.visibility === 'private' && (
+                          <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        )}
+                      </div>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

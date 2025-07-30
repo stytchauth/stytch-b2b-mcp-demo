@@ -16,7 +16,7 @@ import {
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
 import { Button } from '../../components/ui/button';
-import { FileText, Home, PlusCircle } from 'lucide-react';
+import { FileText, Home, PlusCircle, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NotesPage() {
@@ -140,8 +140,11 @@ export default function NotesPage() {
                           href={`/notes?id=${note.id}`}
                           className="block px-3 py-2 bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors text-left"
                         >
-                          <div className="font-medium text-gray-900 text-sm truncate">
-                            {note.title}
+                          <div className="flex items-center gap-2 font-medium text-gray-900 text-sm">
+                            <span className="truncate flex-1">{note.title}</span>
+                            {note.visibility === 'private' && (
+                              <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                            )}
                           </div>
                           <div className="text-xs text-gray-500">
                             {note.updatedAt.toLocaleDateString()}
