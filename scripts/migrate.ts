@@ -1,4 +1,6 @@
 import { initializeDatabase, getDb } from '../lib/db.js';
+import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 
 async function migrate() {
   try {
@@ -19,7 +21,7 @@ async function migrate() {
 }
 
 // Run migration
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1])) {
   migrate();
 }
 

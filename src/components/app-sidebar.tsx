@@ -217,7 +217,7 @@ export function AppSidebar() {
 
                 addNote(newNote);
 
-                window.location.href = `/notes?id=${data.note.id}`;
+                router.push(`/notes?id=${data.note.id}`);
               } catch (error) {
                 console.error('Error creating new note:', error);
               }
