@@ -6,10 +6,10 @@ import {
   useStytchMemberSession,
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FileText, PlusCircle, Star } from 'lucide-react';
+import { FileText, PlusCircle, Star, Lock } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import {
   Card,
@@ -17,7 +17,12 @@ import {
   CardHeader,
   CardTitle,
 } from '../../components/ui/card';
-import { getRecentNotes, getFavoriteNotes } from '../../../lib/notesData';
+import {
+  getRecentNotes,
+  getFavoriteNotes,
+  Note,
+  clearNotesCache,
+} from '@/lib/notesData';
 
 export default function DashboardPage() {
   const { session, isInitialized } = useStytchMemberSession();
@@ -29,8 +34,49 @@ export default function DashboardPage() {
   }, [session?.roles]);
 
   // Get actual notes data
-  const recentNotes = useMemo(() => getRecentNotes(3), []);
-  const favoriteNotes = useMemo(() => getFavoriteNotes(), []);
+  const [recentNotes, setRecentNotes] = useState<Note[]>([]);
+  const [favoriteNotes, setFavoriteNotes] = useState<Note[]>([]);
+
+  // Track the current organization ID to detect changes
+  const previousOrgIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        const [recent, favorites] = await Promise.all([
+          getRecentNotes(3),
+          getFavoriteNotes(),
+        ]);
+        setRecentNotes(recent);
+        setFavoriteNotes(favorites);
+      } catch (error) {
+        console.error('Error loading notes:', error);
+      }
+    };
+
+    if (session && organization) {
+      const currentOrgId = organization.organization_id;
+
+      // Check if organization has changed
+      if (
+        previousOrgIdRef.current !== null &&
+        previousOrgIdRef.current !== currentOrgId
+      ) {
+        // Organization changed - clear notes cache and reload
+        clearNotesCache();
+        setRecentNotes([]);
+        setFavoriteNotes([]);
+      }
+
+      // Update the tracked organization ID
+      previousOrgIdRef.current = currentOrgId;
+
+      // Load notes if we don't have any or if organization changed
+      if (recentNotes.length === 0 && favoriteNotes.length === 0) {
+        loadNotes();
+      }
+    }
+  }, [session, organization, recentNotes.length, favoriteNotes.length]);
 
   // Handle redirect when session is lost - use useEffect to avoid React warning
   useEffect(() => {
@@ -66,8 +112,35 @@ export default function DashboardPage() {
                   <p className="text-xs text-muted-foreground">
                     Jot down a quick thought or reminder.
                   </p>
-                  <Button size="sm" className="w-full mt-4" asChild>
-                    <Link href="/notes">New Note</Link>
+                  <Button
+                    size="sm"
+                    className="w-full mt-4"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/notes/new', {
+                          method: 'POST',
+                        });
+
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          console.error('API error:', errorData);
+                          alert(
+                            `Failed to create note: ${errorData.error || 'Unknown error'}`
+                          );
+                          return;
+                        }
+
+                        const data = await response.json();
+                        router.push(`/notes?id=${data.note.id}`);
+                      } catch (error) {
+                        console.error('Error creating new note:', error);
+                        alert(
+                          `Error creating note: ${error instanceof Error ? error.message : 'Unknown error'}`
+                        );
+                      }
+                    }}
+                  >
+                    New Note
                   </Button>
                 </CardContent>
               </Card>
@@ -131,8 +204,13 @@ export default function DashboardPage() {
                           className="text-sm hover:underline block"
                         >
                           <div className="flex items-center justify-between">
-                            <span>{note.title}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="truncate">{note.title}</span>
+                              {note.visibility === 'private' && (
+                                <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground flex-shrink-0">
                               {note.updatedAt.toLocaleDateString()}
                             </span>
                           </div>
@@ -163,9 +241,14 @@ export default function DashboardPage() {
                           className="text-sm hover:underline block"
                         >
                           <div className="flex items-center justify-between">
-                            <span>{note.title}</span>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="truncate">{note.title}</span>
+                              {note.visibility === 'private' && (
+                                <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                              )}
+                            </div>
                             {note.tags && note.tags.length > 0 && (
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-muted-foreground flex-shrink-0">
                                 #{note.tags[0]}
                               </span>
                             )}

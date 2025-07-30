@@ -62,7 +62,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
         throw new Error(data.error || 'Failed to create organization');
       }
 
-      console.log('Organization created:', data.organization.organization_name);
+      
 
       // Close modal and reset form first
       handleCloseModal();
@@ -78,7 +78,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
         session_duration_minutes: 60,
       });
 
-      console.log('Session exchanged to new organization');
+      
 
       // Navigate to current page to refresh organization context
       router.push(pathname);

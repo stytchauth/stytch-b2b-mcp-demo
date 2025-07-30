@@ -2,201 +2,200 @@ export interface Note {
   id: string;
   title: string;
   content: string;
+  member_id: string;
+  organization_id: string;
+  visibility: 'private' | 'shared';
   createdAt: Date;
   updatedAt: Date;
   isFavorite: boolean;
   tags?: string[];
 }
 
-// Mock notes data - this would typically come from an API or database
-const mockNotes: Note[] = [
-  {
-    id: 'team-notes',
-    title: 'Team Notes',
-    content: `# Team Notes
+// Cache for notes to avoid frequent API calls
+let notesCache: Note[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 30000; // 30 seconds
 
-This is your collaborative space for team notes and ideas.
+// Function to clear the notes cache (useful when switching organizations)
+export const clearNotesCache = (): void => {
+  notesCache = null;
+  cacheTimestamp = 0;
+};
 
-## Meeting Notes
-
-- **Date:** Today
-- **Attendees:** Team members
-- **Agenda:** 
-  - Review project progress
-  - Discuss upcoming features
-  - Plan next sprint
-
-## Action Items
-
-- [ ] Update project documentation
-- [ ] Schedule team review session
-- [ ] Prepare for next sprint planning
-
-## Ideas & Brainstorming
-
-Use this space to capture creative ideas and thoughts that emerge during collaboration.`,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15'),
-    isFavorite: true,
-    tags: ['team', 'collaboration'],
-  },
-  {
-    id: 'getting-started',
-    title: 'Getting Started',
-    content: `# Getting Started Guide
-
-Welcome to our collaborative workspace! This guide will help you get up and running quickly. This is some long text to see how it looks.
-
-## First Steps
-
-1. **Set up your profile** - Add your name and profile picture
-2. **Join your team** - Make sure you're part of the right organization
-3. **Explore the features** - Check out notes, members, and settings
-
-## Key Features
-
-### Notes
-- Create and edit collaborative documents
-- Share notes with team members
-- Organize with tags and favorites
-
-### Members
-- Invite new team members
-- Manage roles and permissions
-- View team activity
-
-### Settings
-- Configure organization preferences
-- Set up integrations
-- Manage security settings
-
-## Tips for Success
-
-- Use clear, descriptive titles for your notes
-- Tag your content for easy discovery
-- Regular team check-ins help keep everyone aligned
-
-Happy collaborating! 🚀`,
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-12'),
-    isFavorite: false,
-    tags: ['onboarding', 'guide'],
-  },
-  {
-    id: 'project-roadmap',
-    title: 'Project Roadmap Q3',
-    content: `# Q3 Project Roadmap
-
-## Overview
-Our focus for Q3 is expanding platform capabilities and improving user experience.
-
-## Key Initiatives
-
-### 1. Enhanced Collaboration Features
-- **Timeline**: July - August
-- **Goals**: 
-  - Real-time editing
-  - Comment threads
-  - Version history
-- **Owner**: Product Team
-
-### 2. Mobile Application
-- **Timeline**: August - September
-- **Goals**:
-  - iOS and Android apps
-  - Offline capabilities
-  - Push notifications
-- **Owner**: Mobile Team
-
-### 3. Advanced Analytics
-- **Timeline**: September - October
-- **Goals**:
-  - Usage dashboards
-  - Performance metrics
-  - User insights
-- **Owner**: Data Team
-
-## Success Metrics
-- User engagement: +25%
-- Feature adoption: >60%
-- Customer satisfaction: 4.5+
-
-## Risks & Mitigation
-- Resource constraints → Prioritize core features
-- Technical challenges → Early prototyping
-- Market changes → Regular strategy reviews`,
-    createdAt: new Date('2024-01-08'),
-    updatedAt: new Date('2024-01-14'),
-    isFavorite: true,
-    tags: ['roadmap', 'planning', 'q3'],
-  },
-];
+// Helper function to convert API response to Note objects
+function convertApiResponseToNote(apiNote: any): Note {
+  return {
+    id: apiNote.id,
+    title: apiNote.title,
+    content: apiNote.content,
+    member_id: apiNote.member_id,
+    organization_id: apiNote.organization_id,
+    visibility: apiNote.visibility,
+    createdAt: new Date(apiNote.created_at),
+    updatedAt: new Date(apiNote.updated_at),
+    isFavorite: apiNote.is_favorite,
+    tags: apiNote.tags || [],
+  };
+}
 
 // Utility functions for note management
-export const getAllNotes = (): Note[] => {
-  return mockNotes;
+export const getAllNotes = async (): Promise<Note[]> => {
+  try {
+    // Check cache first
+    const now = Date.now();
+    if (notesCache && now - cacheTimestamp < CACHE_DURATION) {
+      return notesCache;
+    }
+
+    const response = await fetch('/api/notes');
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Notes API error:', errorText);
+      throw new Error('Failed to fetch notes');
+    }
+
+    const data = await response.json();
+    const notes = data.notes.map(convertApiResponseToNote);
+
+    // Update cache
+    notesCache = notes;
+    cacheTimestamp = now;
+
+    return notes;
+  } catch (error) {
+    console.error('Error fetching notes:', error);
+    return [];
+  }
 };
 
-export const getNoteById = (id: string): Note | undefined => {
-  return mockNotes.find(note => note.id === id);
+export const getNoteById = async (id: string): Promise<Note | undefined> => {
+  try {
+    const response = await fetch(`/api/notes/${id}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error('Failed to fetch note');
+    }
+
+    const data = await response.json();
+    return convertApiResponseToNote(data.note);
+  } catch (error) {
+    console.error('Error fetching note:', error);
+    return undefined;
+  }
 };
 
-export const getFavoriteNotes = (): Note[] => {
-  return mockNotes.filter(note => note.isFavorite);
+export const getFavoriteNotes = async (): Promise<Note[]> => {
+  const allNotes = await getAllNotes();
+  return allNotes.filter(note => note.isFavorite);
 };
 
-export const getRecentNotes = (limit: number = 5): Note[] => {
-  return mockNotes
+export const getRecentNotes = async (limit: number = 5): Promise<Note[]> => {
+  const allNotes = await getAllNotes();
+  return allNotes
     .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
     .slice(0, limit);
 };
 
-export const getNotesByTag = (tag: string): Note[] => {
-  return mockNotes.filter(note => note.tags?.includes(tag));
+export const getNotesByTag = async (tag: string): Promise<Note[]> => {
+  const allNotes = await getAllNotes();
+  return allNotes.filter(note => note.tags?.includes(tag));
 };
 
-// This would typically be an API call
+// API call to save a note (create or update)
 export const saveNote = async (note: Partial<Note>): Promise<Note> => {
-  // Mock implementation - in real app this would call an API
-  const updatedNote: Note = {
-    id: note.id || `note-${Date.now()}`,
-    title: note.title || 'Untitled',
-    content: note.content || '',
-    createdAt: note.createdAt || new Date(),
-    updatedAt: new Date(),
-    isFavorite: note.isFavorite || false,
-    tags: note.tags || [],
-  };
+  try {
+    const isUpdate = !!note.id;
 
-  // In a real app, you'd update the database here
-  console.log('Saving note:', updatedNote);
+    if (isUpdate) {
+      // Update existing note
+      const response = await fetch(`/api/notes/${note.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: note.title,
+          content: note.content,
+          visibility: note.visibility,
+          is_favorite: note.isFavorite,
+          tags: note.tags,
+        }),
+      });
 
-  return updatedNote;
+      if (!response.ok) {
+        throw new Error('Failed to update note');
+      }
+
+      const data = await response.json();
+      const updatedNote = convertApiResponseToNote(data.note);
+
+      // Invalidate cache
+      notesCache = null;
+
+      return updatedNote;
+    } else {
+      // Create new note
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: note.title || 'Untitled',
+          content: note.content || '',
+          visibility: note.visibility || 'private',
+          is_favorite: note.isFavorite || false,
+          tags: note.tags || [],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create note');
+      }
+
+      const data = await response.json();
+      const newNote = convertApiResponseToNote(data.note);
+
+      // Invalidate cache
+      notesCache = null;
+
+      return newNote;
+    }
+  } catch (error) {
+    console.error('Error saving note:', error);
+    throw error;
+  }
 };
 
-// This would typically be an API call
+// API call to delete a note
 export const deleteNote = async (noteId: string): Promise<boolean> => {
-  // Mock implementation - in real app this would call an API
-  const noteIndex = mockNotes.findIndex(note => note.id === noteId);
+  try {
+    const response = await fetch(`/api/notes/${noteId}`, {
+      method: 'DELETE',
+    });
 
-  if (noteIndex === -1) {
-    throw new Error('Note not found');
+    if (!response.ok) {
+      throw new Error('Failed to delete note');
+    }
+
+    // Invalidate cache
+    notesCache = null;
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting note:', error);
+    throw error;
   }
-
-  // Remove the note from the mock data
-  mockNotes.splice(noteIndex, 1);
-
-  console.log('Deleted note:', noteId);
-
-  return true;
 };
 
 export const createNewNote = (): Partial<Note> => {
   return {
     title: 'Untitled',
     content: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    visibility: 'private',
     isFavorite: false,
     tags: [],
   };

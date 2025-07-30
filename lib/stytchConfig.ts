@@ -1,4 +1,4 @@
-import { IBM_Plex_Sans } from '@next/font/google';
+import { IBM_Plex_Sans } from 'next/font/google';
 import { AdminPortalB2BProducts } from '@stytch/nextjs/b2b/adminPortal';
 import {
   B2BProducts,
