@@ -13,7 +13,9 @@ if (!PROJECT_ID) {
   console.log('export NEON_PROJECT_ID="your-project-id"');
   console.log('\nOr add it to your shell profile (.bashrc, .zshrc, etc.):');
   console.log('echo "export NEON_PROJECT_ID=your-project-id" >> ~/.zshrc');
-  console.log('\nYou can find your project ID in the Neon dashboard or by running:');
+  console.log(
+    '\nYou can find your project ID in the Neon dashboard or by running:'
+  );
   console.log('neon projects list');
   process.exit(1);
 }
@@ -30,7 +32,10 @@ function runCommand(command, description) {
 
 function getUserName() {
   try {
-    return execSync('git config user.name', { encoding: 'utf8' }).trim().toLowerCase().replace(/\s+/g, '-');
+    return execSync('git config user.name', { encoding: 'utf8' })
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-');
   } catch {
     return 'dev';
   }
@@ -64,12 +69,12 @@ async function main() {
       'Getting unpooled connection string'
     );
 
-
-
     // Check if .env.local exists
     const envLocalPath = path.join(process.cwd(), '.env.local');
     if (!fs.existsSync(envLocalPath)) {
-      throw new Error('.env.local file not found. Please create a .env.local file first.');
+      throw new Error(
+        '.env.local file not found. Please create a .env.local file first.'
+      );
     }
 
     console.log('\n✅ Branch created successfully!');
@@ -80,7 +85,7 @@ async function main() {
       `# Database Configuration - Your Personal Development Branch`,
       `DATABASE_URL=${pooledConnectionString}`,
       `DATABASE_URL_UNPOOLED=${unpooledConnectionString}`,
-      '' // Empty line at the end
+      '', // Empty line at the end
     ].join('\n');
 
     // Write to .env.local
@@ -94,12 +99,17 @@ async function main() {
 
     console.log('\n🎉 Setup complete!');
     console.log('\nNext steps:');
-    console.log('1. Environment variables have been written to your .env.local file');
+    console.log(
+      '1. Environment variables have been written to your .env.local file'
+    );
     console.log('2. Run: npm run dev');
-    console.log('3. Your app will now use your personal development database branch');
+    console.log(
+      '3. Your app will now use your personal development database branch'
+    );
     console.log(`\nYour branch name: ${branchName}`);
-    console.log(`\n💡 To delete this branch later: neon branches delete ${branchName} --project-id ${PROJECT_ID}`);
-
+    console.log(
+      `\n💡 To delete this branch later: neon branches delete ${branchName} --project-id ${PROJECT_ID}`
+    );
   } catch (error) {
     console.error('\n❌ Setup failed:', error.message);
     console.log('\nPlease ensure:');

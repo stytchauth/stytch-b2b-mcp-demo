@@ -19,8 +19,10 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error creating new note:', error);
 
-    if (error.message === 'Authentication required - no session info available' || 
-        error.message === 'No active session found') {
+    if (
+      error.message === 'Authentication required - no session info available' ||
+      error.message === 'No active session found'
+    ) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }

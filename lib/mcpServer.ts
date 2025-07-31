@@ -46,7 +46,7 @@ export const initializeMCPServer = (server: McpServer) => {
     async (uri, { id }, { authInfo }) => {
       const notesService = await NotesService.fromMCPAuthInfo(authInfo);
       const note = await notesService.getNoteById(id as string);
-      
+
       return {
         contents: [
           {
@@ -75,11 +75,15 @@ export const initializeMCPServer = (server: McpServer) => {
       visibility: z
         .enum(['private', 'shared'])
         .optional()
-        .describe('Visibility of the note - private (only you can see) or shared (organization members can see). Defaults to private.'),
+        .describe(
+          'Visibility of the note - private (only you can see) or shared (organization members can see). Defaults to private.'
+        ),
       is_favorite: z
         .boolean()
         .optional()
-        .describe('Whether to mark this note as a favorite (optional, defaults to false)'),
+        .describe(
+          'Whether to mark this note as a favorite (optional, defaults to false)'
+        ),
       tags: z
         .array(z.string())
         .optional()
@@ -94,12 +98,9 @@ export const initializeMCPServer = (server: McpServer) => {
         is_favorite,
         tags,
       });
-      
+
       server.sendResourceListChanged();
-      return formatResponse(
-        'Note created successfully!',
-        note
-      );
+      return formatResponse('Note created successfully!', note);
     }
   );
 
@@ -108,9 +109,7 @@ export const initializeMCPServer = (server: McpServer) => {
     'updateNote',
     'Update an existing note by ID',
     {
-      noteId: z
-        .string()
-        .describe('ID of the note to update'),
+      noteId: z.string().describe('ID of the note to update'),
       title: z
         .string()
         .optional()
@@ -132,7 +131,10 @@ export const initializeMCPServer = (server: McpServer) => {
         .optional()
         .describe('New array of tags for the note (optional)'),
     },
-    async ({ noteId, title, content, visibility, is_favorite, tags }, { authInfo }) => {
+    async (
+      { noteId, title, content, visibility, is_favorite, tags },
+      { authInfo }
+    ) => {
       const notesService = await NotesService.fromMCPAuthInfo(authInfo);
       const note = await notesService.updateNote(noteId, {
         title,
@@ -141,12 +143,9 @@ export const initializeMCPServer = (server: McpServer) => {
         is_favorite,
         tags,
       });
-      
+
       server.sendResourceListChanged();
-      return formatResponse(
-        'Note updated successfully!',
-        note
-      );
+      return formatResponse('Note updated successfully!', note);
     }
   );
 
@@ -155,19 +154,17 @@ export const initializeMCPServer = (server: McpServer) => {
     'deleteNote',
     'Delete a note by ID',
     {
-      noteId: z
-        .string()
-        .describe('ID of the note to delete'),
+      noteId: z.string().describe('ID of the note to delete'),
     },
     async ({ noteId }, { authInfo }) => {
       const notesService = await NotesService.fromMCPAuthInfo(authInfo);
       const success = await notesService.deleteNote(noteId);
-      
+
       server.sendResourceListChanged();
-      return formatResponse(
-        'Note deleted successfully!',
-        { deleted: success, noteId }
-      );
+      return formatResponse('Note deleted successfully!', {
+        deleted: success,
+        noteId,
+      });
     }
   );
 
@@ -180,7 +177,7 @@ export const initializeMCPServer = (server: McpServer) => {
         const notesService = await NotesService.fromMCPAuthInfo(authInfo);
         // Access the private sessionInfo through a simple getter
         const sessionInfo = (notesService as any).sessionInfo;
-        
+
         return {
           content: [
             {
@@ -210,14 +207,14 @@ export const initializeMCPServer = (server: McpServer) => {
       if (!authInfo?.token) {
         throw new Error('User not authenticated - no token available');
       }
-      
+
       try {
         // Get OpenID Connect issuer and fetch userinfo
         const config = await discovery(
           new URL(process.env.STYTCH_DOMAIN as string),
           authInfo.clientId as string
         );
-        
+
         const userinfo = await fetchUserInfo(
           config,
           authInfo.token,
@@ -250,17 +247,15 @@ export const initializeMCPServer = (server: McpServer) => {
     'getNotesByTag',
     'Get all notes that have a specific tag',
     {
-      tag: z
-        .string()
-        .describe('Tag to search for in notes'),
+      tag: z.string().describe('Tag to search for in notes'),
     },
     async ({ tag }, { authInfo }) => {
       const notesService = await NotesService.fromMCPAuthInfo(authInfo);
       const allNotes = await notesService.getNotes();
-      const filteredNotes = allNotes.filter(note => 
-        note.tags && note.tags.includes(tag)
+      const filteredNotes = allNotes.filter(
+        note => note.tags && note.tags.includes(tag)
       );
-      
+
       return formatResponse(
         `Found ${filteredNotes.length} notes with tag "${tag}"`,
         filteredNotes
@@ -279,26 +274,30 @@ export const initializeMCPServer = (server: McpServer) => {
       includePrivate: z
         .boolean()
         .optional()
-        .describe('Whether to include private notes in search (defaults to true)'),
+        .describe(
+          'Whether to include private notes in search (defaults to true)'
+        ),
     },
     async ({ searchTerm, includePrivate = true }, { authInfo }) => {
       const notesService = await NotesService.fromMCPAuthInfo(authInfo);
       const allNotes = await notesService.getNotes();
-      
+
       const filteredNotes = allNotes.filter(note => {
         if (!includePrivate && note.visibility === 'private') {
           return false;
         }
-        
+
         const searchLower = searchTerm.toLowerCase();
-        return note.title.toLowerCase().includes(searchLower) ||
-               note.content.toLowerCase().includes(searchLower);
+        return (
+          note.title.toLowerCase().includes(searchLower) ||
+          note.content.toLowerCase().includes(searchLower)
+        );
       });
-      
+
       return formatResponse(
         `Found ${filteredNotes.length} notes matching "${searchTerm}"`,
         filteredNotes
       );
     }
   );
-}; 
+};

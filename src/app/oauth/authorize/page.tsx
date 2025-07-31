@@ -10,17 +10,20 @@ export default function OAuthAuthorizationPage() {
   const { session, isInitialized } = useStytchMemberSession();
   const router = useRouter();
 
-     useEffect(() => {
-     if (isInitialized && !session) {
-       // User is not authenticated, redirect to login with return URL
-       const currentPath = encodeURIComponent(
-         window.location.pathname + window.location.search
-       );
-       console.log('OAuthAuthorize: Redirecting to login with returnTo =', currentPath);
-       console.log('OAuthAuthorize: Full URL =', window.location.href);
-       router.push(`/authenticate?returnTo=${currentPath}`);
-     }
-   }, [isInitialized, session, router]);
+  useEffect(() => {
+    if (isInitialized && !session) {
+      // User is not authenticated, redirect to login with return URL
+      const currentPath = encodeURIComponent(
+        window.location.pathname + window.location.search
+      );
+      console.log(
+        'OAuthAuthorize: Redirecting to login with returnTo =',
+        currentPath
+      );
+      console.log('OAuthAuthorize: Full URL =', window.location.href);
+      router.push(`/authenticate?returnTo=${currentPath}`);
+    }
+  }, [isInitialized, session, router]);
 
   // Don't render anything if not authenticated
   if (isInitialized && !session) {
@@ -40,4 +43,4 @@ export default function OAuthAuthorizationPage() {
       <IdentityProvider />
     </PageLayout>
   );
-} 
+}

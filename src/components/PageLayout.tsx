@@ -6,7 +6,11 @@ interface PageLayoutProps {
   children: React.ReactNode;
 }
 
-export default function PageLayout({ title, subtitle, children }: PageLayoutProps) {
+export default function PageLayout({
+  title,
+  subtitle,
+  children,
+}: PageLayoutProps) {
   return (
     <div className="centered-login">
       <div className="login-container">
@@ -18,4 +22,4 @@ export default function PageLayout({ title, subtitle, children }: PageLayoutProp
       </div>
     </div>
   );
-} 
+}

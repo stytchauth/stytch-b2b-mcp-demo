@@ -28,12 +28,12 @@ const Login = ({ returnTo = null }: LoginProps) => {
   // Build the discovery redirect URL with preserved query parameters
   const buildDiscoveryRedirectURL = () => {
     if (typeof window === 'undefined') return '/authenticate';
-    
+
     const redirectParams = new URLSearchParams();
     if (returnTo) {
       redirectParams.set('returnTo', returnTo);
     }
-    
+
     return `${window.location.origin}/authenticate?${redirectParams.toString()}`;
   };
 
@@ -50,8 +50,8 @@ const Login = ({ returnTo = null }: LoginProps) => {
   };
 
   return (
-    <PageLayout 
-      title="Think it. Make it." 
+    <PageLayout
+      title="Think it. Make it."
       subtitle="Log in to your Notely account"
     >
       <StytchB2B

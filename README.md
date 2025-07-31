@@ -52,6 +52,7 @@ npm run setup-dev
 ```
 
 The setup script will:
+
 - Create a unique development branch for you
 - Write database configuration to your .env.local file
 - Set up database tables

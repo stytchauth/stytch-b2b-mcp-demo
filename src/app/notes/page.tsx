@@ -101,7 +101,6 @@ export default function NotesPage() {
   const handleNoteUpdate = (updatedNote: Note) => {
     // Update the note in state and invalidate cache
     setNote(updatedNote);
-    
   };
 
   // Show no note selected page
@@ -141,7 +140,9 @@ export default function NotesPage() {
                           className="block px-3 py-2 bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors text-left"
                         >
                           <div className="flex items-center gap-2 font-medium text-gray-900 text-sm">
-                            <span className="truncate flex-1">{note.title}</span>
+                            <span className="truncate flex-1">
+                              {note.title}
+                            </span>
                             {note.visibility === 'private' && (
                               <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
                             )}
@@ -197,8 +198,9 @@ export default function NotesPage() {
                   Note Not Found
                 </h1>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  The note with ID &quot;{noteId}&quot; could not be found. It may have
-                  been deleted or you might not have permission to view it.
+                  The note with ID &quot;{noteId}&quot; could not be found. It
+                  may have been deleted or you might not have permission to view
+                  it.
                 </p>
                 <div className="flex gap-3 justify-center">
                   <Button asChild>

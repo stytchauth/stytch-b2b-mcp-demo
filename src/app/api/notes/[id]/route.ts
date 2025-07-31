@@ -23,8 +23,10 @@ export async function GET(
   } catch (error: any) {
     console.error('Error fetching note:', error);
 
-    if (error.message === 'Authentication required - no session info available' || 
-        error.message === 'No active session found') {
+    if (
+      error.message === 'Authentication required - no session info available' ||
+      error.message === 'No active session found'
+    ) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -62,8 +64,10 @@ export async function PUT(
   } catch (error: any) {
     console.error('Error updating note:', error);
 
-    if (error.message === 'Authentication required - no session info available' || 
-        error.message === 'No active session found') {
+    if (
+      error.message === 'Authentication required - no session info available' ||
+      error.message === 'No active session found'
+    ) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -72,25 +76,18 @@ export async function PUT(
 
     // Handle specific error cases from NotesService
     if (error.message === 'Note not found or access denied') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
-    if (error.message === 'Only the creator can edit private notes' ||
-        error.message === 'Only the creator can make a shared note private') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 403 }
-      );
+    if (
+      error.message === 'Only the creator can edit private notes' ||
+      error.message === 'Only the creator can make a shared note private'
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
     }
 
     if (error.message === 'Visibility must be either "private" or "shared"') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json(
@@ -115,8 +112,10 @@ export async function DELETE(
   } catch (error: any) {
     console.error('Error deleting note:', error);
 
-    if (error.message === 'Authentication required - no session info available' || 
-        error.message === 'No active session found') {
+    if (
+      error.message === 'Authentication required - no session info available' ||
+      error.message === 'No active session found'
+    ) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -125,18 +124,15 @@ export async function DELETE(
 
     // Handle specific error cases from NotesService
     if (error.message === 'Note not found') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
-    if (error.message === 'Only the note owner or an admin can delete shared notes' ||
-        error.message === 'You can only delete notes you created') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 403 }
-      );
+    if (
+      error.message ===
+        'Only the note owner or an admin can delete shared notes' ||
+      error.message === 'You can only delete notes you created'
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
     }
 
     return NextResponse.json(

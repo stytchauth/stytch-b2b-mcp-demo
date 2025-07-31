@@ -15,7 +15,10 @@ export default function AuthenticatePage() {
   // Redirect if the session exists
   useEffect(() => {
     if (isInitialized && session) {
-      console.log('AuthenticatePage: Already logged in, redirecting to =', returnTo);
+      console.log(
+        'AuthenticatePage: Already logged in, redirecting to =',
+        returnTo
+      );
       router.replace(returnTo);
     }
   }, [isInitialized, session, router, returnTo]);
@@ -31,6 +34,6 @@ export default function AuthenticatePage() {
   }
 
   console.log('AuthenticatePage: Rendering with returnTo =', returnTo);
-  
+
   return <Login returnTo={returnTo} />;
 }

@@ -33,4 +33,4 @@ export {
   authenticatedHandler as GET,
   authenticatedHandler as POST,
   authenticatedHandler as DELETE,
-}; 
+};

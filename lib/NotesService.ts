@@ -20,24 +20,30 @@ export class NotesService {
     if (!authInfo?.extra) {
       throw new Error('Authentication required - no auth info available');
     }
-    
+
     // Extract member/organization info from Stytch OAuth token introspection result
     // Based on actual token structure: subject contains member_id, organization is nested
-    const organization = authInfo.extra.organization as { organization_id?: string } | undefined;
+    const organization = authInfo.extra.organization as
+      | { organization_id?: string }
+      | undefined;
     const sessionInfo = {
       member_id: authInfo.extra.subject as string, // OAuth subject contains the full member ID
       organization_id: organization?.organization_id as string, // Organization ID is nested
-      roles: Array.isArray(authInfo.extra.roles) ? authInfo.extra.roles : [] // Roles if available
+      roles: Array.isArray(authInfo.extra.roles) ? authInfo.extra.roles : [], // Roles if available
     };
-    
+
     // Validate required fields
     if (!sessionInfo.member_id) {
-      throw new Error('Authentication failed - no member_id found in token subject');
+      throw new Error(
+        'Authentication failed - no member_id found in token subject'
+      );
     }
     if (!sessionInfo.organization_id) {
-      throw new Error('Authentication failed - no organization_id found in token organization');
+      throw new Error(
+        'Authentication failed - no organization_id found in token organization'
+      );
     }
-    
+
     return new NotesService(sessionInfo);
   }
 
@@ -47,9 +53,9 @@ export class NotesService {
     const sessionInfo = {
       member_id: sessionResponse.member.member_id,
       organization_id: sessionResponse.organization.organization_id,
-      roles: sessionResponse.member.roles || []
+      roles: sessionResponse.member.roles || [],
     };
-    
+
     return new NotesService(sessionInfo);
   }
 
@@ -64,7 +70,7 @@ export class NotesService {
   async getNotes() {
     await initializeDatabase();
     const { member_id, organization_id } = this.ensureSessionInfo();
-    
+
     const db = getDb();
     const result = await db.query(
       `
@@ -86,7 +92,7 @@ export class NotesService {
   async getNoteById(noteId: string) {
     await initializeDatabase();
     const { member_id, organization_id } = this.ensureSessionInfo();
-    
+
     const db = getDb();
     const result = await db.query(
       `
@@ -114,7 +120,7 @@ export class NotesService {
     content,
     visibility = 'private',
     is_favorite = false,
-    tags = []
+    tags = [],
   }: {
     title?: string;
     content?: string;
@@ -201,7 +207,11 @@ export class NotesService {
     }
 
     // Validate visibility if provided
-    if (updates.visibility && updates.visibility !== 'private' && updates.visibility !== 'shared') {
+    if (
+      updates.visibility &&
+      updates.visibility !== 'private' &&
+      updates.visibility !== 'shared'
+    ) {
       throw new Error('Visibility must be either "private" or "shared"');
     }
 
@@ -313,4 +323,4 @@ export class NotesService {
 
     return deleteResult.rows.length > 0;
   }
-} 
+}

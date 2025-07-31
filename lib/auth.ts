@@ -15,7 +15,7 @@ export const client = new stytch.B2BClient({
 // Helper function to authenticate session and get user info
 export async function authenticateSession() {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("stytch_session");
+  const sessionCookie = cookieStore.get('stytch_session');
 
   if (!sessionCookie) {
     throw new Error('No active session found');
@@ -34,14 +34,14 @@ export async function authenticateSession() {
   return session;
 }
 
-// Helper function to require authentication and redirect if not authenticated  
+// Helper function to require authentication and redirect if not authenticated
 export async function requireAuth(returnTo?: string) {
   try {
     return await authenticateSession();
   } catch (error) {
-    const returnToParam = returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : '';
+    const returnToParam = returnTo
+      ? `?returnTo=${encodeURIComponent(returnTo)}`
+      : '';
     redirect(`/authenticate${returnToParam}`);
   }
 }
-
- 

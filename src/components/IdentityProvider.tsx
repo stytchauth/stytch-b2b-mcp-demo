@@ -1,8 +1,6 @@
 'use client';
 
-import {
-  B2BIdentityProvider as BaseB2BIdentityProvider,
-} from '@stytch/nextjs/b2b';
+import { B2BIdentityProvider as BaseB2BIdentityProvider } from '@stytch/nextjs/b2b';
 import { StyleConfig } from '@stytch/vanilla-js';
 
 const styles = {
@@ -46,4 +44,4 @@ const styles = {
 // It reads from the stytch_session cookie and handles the OAuth consent flow
 export function IdentityProvider() {
   return <BaseB2BIdentityProvider styles={styles} />;
-} 
+}

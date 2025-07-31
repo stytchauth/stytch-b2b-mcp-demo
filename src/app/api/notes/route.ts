@@ -11,8 +11,10 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Error fetching notes:', error);
 
-    if (error.message === 'Authentication required - no session info available' || 
-        error.message === 'No active session found') {
+    if (
+      error.message === 'Authentication required - no session info available' ||
+      error.message === 'No active session found'
+    ) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -51,8 +53,10 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error creating note:', error);
 
-    if (error.message === 'Authentication required - no session info available' || 
-        error.message === 'No active session found') {
+    if (
+      error.message === 'Authentication required - no session info available' ||
+      error.message === 'No active session found'
+    ) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -60,12 +64,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle validation errors from NotesService
-    if (error.message === 'Title or content is required' ||
-        error.message === 'Visibility must be either "private" or "shared"') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+    if (
+      error.message === 'Title or content is required' ||
+      error.message === 'Visibility must be either "private" or "shared"'
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json(
