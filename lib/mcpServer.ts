@@ -199,46 +199,58 @@ export const initializeMCPServer = (server: McpServer) => {
     }
   );
 
-  // Get detailed user info via OpenID Connect
+  // Authentication info tool
   server.tool(
     'userinfo',
-    'Get current user detailed information via OpenID Connect',
+    'Get current user authentication info',
     async ({ authInfo }) => {
       if (!authInfo?.token) {
         throw new Error('User not authenticated - no token available');
       }
+      // Get OpenID Connect issuer and fetch userinfo
+      let config = await discovery(
+        new URL(process.env.STYTCH_DOMAIN as string),
+        authInfo.clientId[0]
+      );
+      const userinfo = await fetchUserInfo(
+        config,
+        authInfo.token,
+        authInfo.extra?.subject as string
+      );
 
-      try {
-        // Get OpenID Connect issuer and fetch userinfo
-        const config = await discovery(
-          new URL(process.env.STYTCH_DOMAIN as string),
-          authInfo.clientId as string
-        );
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Notely UserInfo:\\n${JSON.stringify(userinfo, null, 2)}`,
+          },
+        ],
+      };
+    }
+  );
 
-        const userinfo = await fetchUserInfo(
-          config,
-          authInfo.token,
-          authInfo.extra?.subject as string
-        );
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `User Info from OpenID Connect:\\n${JSON.stringify(userinfo, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: any) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Failed to fetch user info: ${error.message}`,
-            },
-          ],
-        };
-      }
+  // Debug tool to inspect auth info
+  server.tool(
+    'debugAuth',
+    'Debug tool to inspect the current authentication info structure',
+    async ({ authInfo }) => {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Authentication Debug Info:\\n${JSON.stringify({
+              hasToken: !!authInfo?.token,
+              tokenLength: authInfo?.token?.length || 0,
+              clientId: authInfo?.clientId || 'NOT_SET',
+              scopes: authInfo?.scopes || 'NOT_SET',
+              expiresAt: authInfo?.expiresAt || 'NOT_SET',
+              extraKeys: authInfo?.extra ? Object.keys(authInfo.extra) : 'NOT_SET',
+              subject: authInfo?.extra?.subject || 'NOT_SET',
+              organization: authInfo?.extra?.organization || 'NOT_SET',
+            }, null, 2)}`,
+          },
+        ],
+      };
     }
   );
 
