@@ -296,9 +296,15 @@ export default function NotesEditor({
               paddingBottom: '1rem',
             }}
           >
-            <ReactMarkdown 
+            <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              disallowedElements={['script', 'style', 'iframe', 'object', 'embed']}
+              disallowedElements={[
+                'script',
+                'style',
+                'iframe',
+                'object',
+                'embed',
+              ]}
               unwrapDisallowed={true}
             >
               {currentNote.content}
