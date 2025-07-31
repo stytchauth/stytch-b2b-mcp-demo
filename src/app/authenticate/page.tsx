@@ -1,26 +1,36 @@
 'use client';
 
 import Login from '../../components/Login';
-import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStytchMemberSession } from '@stytch/nextjs/b2b';
 
 export default function AuthenticatePage() {
   const { session, isInitialized } = useStytchMemberSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const alreadyLoggedInRef = useRef<boolean>();
+  const returnTo = searchParams.get('returnTo') || '/dashboard';
+
+  // Redirect if the session exists
   useEffect(() => {
-    if (isInitialized && alreadyLoggedInRef.current === undefined) {
-      const hasSession = !!session;
-      alreadyLoggedInRef.current = hasSession;
-
-      if (hasSession) {
-        // The user was already logged in, so we can redirect them immediately
-        router.replace('/dashboard');
-      }
+    if (isInitialized && session) {
+      console.log('AuthenticatePage: Already logged in, redirecting to =', returnTo);
+      router.replace(returnTo);
     }
-  }, [isInitialized, session, router]);
+  }, [isInitialized, session, router, returnTo]);
 
-  return <Login />;
+  // Don't render anything if already authenticated
+  if (isInitialized && session) {
+    return null;
+  }
+
+  // Don't render until we know authentication status
+  if (!isInitialized) {
+    return null;
+  }
+
+  console.log('AuthenticatePage: Rendering with returnTo =', returnTo);
+  
+  return <Login returnTo={returnTo} />;
 }

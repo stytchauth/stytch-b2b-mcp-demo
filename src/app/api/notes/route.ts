@@ -1,51 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateSession } from '@/lib/auth';
-import {
-  getDb,
-  initializeDatabase,
-  dbRowToNote,
-} from '@/lib/db';
-
-
+import { NotesService } from '@/lib/NotesService';
 
 // GET /api/notes - Get all notes accessible to the current user
 export async function GET(request: NextRequest) {
   try {
-    // Initialize database if needed
-    await initializeDatabase();
-
-    // Authenticate session
-    const sessionResponse = await authenticateSession();
-    const { member_id, organization_id } = { 
-      member_id: sessionResponse.member.member_id, 
-      organization_id: sessionResponse.organization.organization_id 
-    };
-
-    const db = getDb();
-
-    // Get notes that are either:
-    // 1. Private notes created by the current user
-    // 2. Shared notes in the current organization
-    const result = await db.query(
-      `
-      SELECT * FROM notes 
-      WHERE organization_id = $1 
-      AND (
-        (visibility = 'private' AND member_id = $2) 
-        OR visibility = 'shared'
-      )
-      ORDER BY updated_at DESC
-    `,
-      [organization_id, member_id]
-    );
-
-    const notes = result.rows.map(dbRowToNote);
+    const notesService = await NotesService.fromSessionAuth();
+    const notes = await notesService.getNotes();
 
     return NextResponse.json({ notes });
   } catch (error: any) {
     console.error('Error fetching notes:', error);
 
-    if (error.message === 'No active session found') {
+    if (error.message === 'Authentication required - no session info available' || 
+        error.message === 'No active session found') {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -62,16 +29,7 @@ export async function GET(request: NextRequest) {
 // POST /api/notes - Create a new note
 export async function POST(request: NextRequest) {
   try {
-    // Initialize database if needed
-    await initializeDatabase();
-
-    // Authenticate session
-    const sessionResponse = await authenticateSession();
-    const { member_id, organization_id } = { 
-      member_id: sessionResponse.member.member_id, 
-      organization_id: sessionResponse.organization.organization_id 
-    };
-
+    const notesService = await NotesService.fromSessionAuth();
     const body = await request.json();
     const {
       title,
@@ -81,51 +39,32 @@ export async function POST(request: NextRequest) {
       tags = [],
     } = body;
 
-    // Validate required fields
-    if (!title && !content) {
-      return NextResponse.json(
-        { error: 'Title or content is required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate visibility
-    if (visibility !== 'private' && visibility !== 'shared') {
-      return NextResponse.json(
-        { error: 'Visibility must be either "private" or "shared"' },
-        { status: 400 }
-      );
-    }
-
-    const db = getDb();
-
-    const result = await db.query(
-      `
-      INSERT INTO notes (title, content, member_id, organization_id, visibility, is_favorite, tags)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
-    `,
-      [
-        title || 'Untitled',
-        content || '',
-        member_id,
-        organization_id,
-        visibility,
-        is_favorite,
-        tags,
-      ]
-    );
-
-    const note = dbRowToNote(result.rows[0]);
+    const note = await notesService.createNote({
+      title,
+      content,
+      visibility,
+      is_favorite,
+      tags,
+    });
 
     return NextResponse.json({ note }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating note:', error);
 
-    if (error.message === 'No active session found') {
+    if (error.message === 'Authentication required - no session info available' || 
+        error.message === 'No active session found') {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    // Handle validation errors from NotesService
+    if (error.message === 'Title or content is required' ||
+        error.message === 'Visibility must be either "private" or "shared"') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
       );
     }
 

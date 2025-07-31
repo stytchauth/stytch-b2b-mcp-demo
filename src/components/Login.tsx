@@ -9,7 +9,7 @@ import {
   discoveryStyles,
   customStrings,
 } from '@/lib/stytchConfig';
-import './Login.css';
+import PageLayout from './PageLayout';
 
 /*
  * Login configures and renders the StytchLogin component which is a prebuilt UI component for auth powered by Stytch.
@@ -18,30 +18,56 @@ import './Login.css';
  * https://stytch.com/docs/b2b/sdks/ui-config
  */
 
-const Login = () => {
+interface LoginProps {
+  returnTo?: string | null;
+}
+
+const Login = ({ returnTo = null }: LoginProps) => {
   const router = useRouter();
 
+  // Build the discovery redirect URL with preserved query parameters
+  const buildDiscoveryRedirectURL = () => {
+    if (typeof window === 'undefined') return '/authenticate';
+    
+    const redirectParams = new URLSearchParams();
+    if (returnTo) {
+      redirectParams.set('returnTo', returnTo);
+    }
+    
+    return `${window.location.origin}/authenticate?${redirectParams.toString()}`;
+  };
+
+  // Create dynamic config that includes returnTo in discovery redirect
+  const dynamicConfig = {
+    ...discoveryConfig,
+    emailMagicLinksOptions: {
+      discoveryRedirectURL: buildDiscoveryRedirectURL(),
+    },
+    oauthOptions: {
+      ...discoveryConfig.oauthOptions,
+      discoveryRedirectURL: buildDiscoveryRedirectURL(),
+    },
+  };
+
   return (
-    <div className="centered-login">
-      <div className="login-container">
-        <div className="notion-header">
-          <h1 className="notion-title">Think it. Make it.</h1>
-          <p className="notion-subtitle">Log in to your Notely account</p>
-        </div>
-        <StytchB2B
-          config={discoveryConfig}
-          styles={discoveryStyles}
-          strings={customStrings}
-          callbacks={{
-            onEvent: event => {
-              if (event.type === StytchEventType.AuthenticateFlowComplete) {
-                router.replace('/dashboard');
-              }
-            },
-          }}
-        />
-      </div>
-    </div>
+    <PageLayout 
+      title="Think it. Make it." 
+      subtitle="Log in to your Notely account"
+    >
+      <StytchB2B
+        config={dynamicConfig}
+        styles={discoveryStyles}
+        strings={customStrings}
+        callbacks={{
+          onEvent: event => {
+            if (event.type === StytchEventType.AuthenticateFlowComplete) {
+              console.log('Login: Auth complete, returnTo =', returnTo);
+              router.replace(returnTo || '/dashboard');
+            }
+          },
+        }}
+      />
+    </PageLayout>
   );
 };
 

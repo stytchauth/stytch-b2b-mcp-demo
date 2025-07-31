@@ -4,12 +4,12 @@ import * as stytch from 'stytch';
 
 const STYTCH_PROJECT_ID = process.env.STYTCH_PROJECT_ID;
 const STYTCH_SECRET = process.env.STYTCH_SECRET;
-const STYTCH_PROJECT_ENV = process.env.STYTCH_PROJECT_ENV || 'test';
+const STYTCH_DOMAIN = process.env.STYTCH_DOMAIN;
 
 export const client = new stytch.B2BClient({
   project_id: STYTCH_PROJECT_ID || '',
   secret: STYTCH_SECRET || '',
-  env: STYTCH_PROJECT_ENV === 'live' ? stytch.envs.live : stytch.envs.test,
+  custom_base_url: STYTCH_DOMAIN,
 });
 
 // Helper function to authenticate session and get user info
@@ -32,6 +32,16 @@ export async function authenticateSession() {
   }
 
   return session;
+}
+
+// Helper function to require authentication and redirect if not authenticated  
+export async function requireAuth(returnTo?: string) {
+  try {
+    return await authenticateSession();
+  } catch (error) {
+    const returnToParam = returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : '';
+    redirect(`/authenticate${returnToParam}`);
+  }
 }
 
  
