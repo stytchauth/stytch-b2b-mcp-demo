@@ -43,7 +43,7 @@ import {
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
 import { useRouter } from 'next/navigation';
-import { getRecentNotes, Note, clearNotesCache } from '@/lib/notesData';
+import { getAllNotes, Note, clearNotesCache } from '@/lib/notesData';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import OrgSwitcher from './OrgSwitcher';
 import CreateTeamModal from './CreateTeamModal';
@@ -77,12 +77,14 @@ export function AppSidebar() {
   const previousOrgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const loadRecentNotes = async () => {
+    const loadAllNotes = async () => {
       try {
-        const recent = await getRecentNotes(3);
-        setRecentNotes(recent);
+        const allNotes = await getAllNotes();
+        // Sort by most recently updated
+        const sortedNotes = allNotes.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        setRecentNotes(sortedNotes);
       } catch (error) {
-        console.error('Error loading recent notes:', error);
+        console.error('Error loading notes:', error);
       }
     };
 
@@ -104,7 +106,7 @@ export function AppSidebar() {
 
       // Load notes if we don't have any or if organization changed
       if (recentNotes.length === 0) {
-        loadRecentNotes();
+        loadAllNotes();
       }
     }
   }, [session, organization, recentNotes.length, setRecentNotes]);
@@ -186,6 +188,27 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map(item => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(item.href)}
+                    tooltip={item.name}
+                  >
+                    <Link href={item.href}>
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup className="flex-1 min-h-0">
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarGroupAction
             onClick={async () => {
@@ -225,7 +248,7 @@ export function AppSidebar() {
           >
             <Plus className="size-4" />
           </SidebarGroupAction>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="overflow-y-auto">
             <SidebarMenu>
               {recentNotes.map(note => (
                 <SidebarMenuItem key={note.id}>
@@ -258,27 +281,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsItems.map(item => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.href)}
-                    tooltip={item.name}
-                  >
-                    <Link href={item.href}>
-                      {item.icon}
-                      <span>{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
