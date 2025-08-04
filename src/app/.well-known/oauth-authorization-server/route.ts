@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const response = NextResponse.json({
-    authorization_endpoint: `${process.env.STYTCH_DOMAIN}/v1/oauth2/authorize`,
+    authorization_endpoint: `${new URL(request.url).origin}/oauth/authorize`,
     code_challenge_methods_supported: ['S256'],
     grant_types_supported: ['authorization_code', 'refresh_token'],
     issuer: `${process.env.STYTCH_DOMAIN}`,
