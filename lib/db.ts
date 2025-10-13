@@ -2,6 +2,8 @@ import { Pool } from 'pg';
 
 const isProd = process.env.NODE_ENV === 'production';
 
+let notesFeatureEnabled: boolean | null = null;
+
 export class DatabaseNotConfiguredError extends Error {
   constructor() {
     super('Database is not configured. Set DATABASE_URL to enable notes.');
@@ -11,6 +13,7 @@ export class DatabaseNotConfiguredError extends Error {
 
 // Database connection pool for Neon PostgreSQL
 let pool: Pool | null = null;
+let hasInitialized = false;
 
 export function isDatabaseConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL);
@@ -26,13 +29,19 @@ export function getDb(): Pool {
       connectionString: process.env.DATABASE_URL,
       ssl: isProd ? { rejectUnauthorized: false } : false,
     });
+    notesFeatureEnabled = true;
   }
   return pool;
 }
 
 // Initialize database tables if they don't exist
 export async function initializeDatabase(): Promise<void> {
+  if (hasInitialized) {
+    return;
+  }
+
   if (!isDatabaseConfigured()) {
+    notesFeatureEnabled = false;
     throw new DatabaseNotConfiguredError();
   }
 
@@ -66,7 +75,8 @@ export async function initializeDatabase(): Promise<void> {
       ON notes(organization_id, visibility);
     `);
 
-    console.log('Database tables initialized successfully');
+    notesFeatureEnabled = true;
+    hasInitialized = true;
   } catch (error) {
     console.error('Error initializing database:', error);
     throw error;

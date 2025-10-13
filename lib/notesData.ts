@@ -11,46 +11,19 @@ export interface Note {
   tags?: string[];
 }
 
+let notesFeatureEnabled: boolean | null = null;
+
 // Cache for notes to avoid frequent API calls
 let notesCache: Note[] | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 30000; // 30 seconds
 
-let notesFeatureEnabled: boolean | null = null;
-
 export const notesEnabled = () => notesFeatureEnabled !== false;
-
-async function ensureNotesFeatureStatus(): Promise<void> {
-  if (notesFeatureEnabled !== null) {
-    return;
-  }
-
-  try {
-    const response = await fetch('/api/notes/status');
-
-    if (!response.ok) {
-      notesFeatureEnabled = false;
-      return;
-    }
-
-    const data = await response.json();
-    notesFeatureEnabled = data.enabled !== false;
-  } catch (error) {
-    console.error('Failed to determine notes feature status:', error);
-    notesFeatureEnabled = false;
-  }
-}
 
 // Function to clear the notes cache (useful when switching organizations)
 export const clearNotesCache = (): void => {
   notesCache = null;
   cacheTimestamp = 0;
-};
-
-const handleNotesDisabled = () => {
-  notesFeatureEnabled = false;
-  clearNotesCache();
-  throw new Error('Notes are disabled because no database is configured.');
 };
 
 // Helper function to convert API response to Note objects
@@ -69,10 +42,28 @@ function convertApiResponseToNote(apiNote: any): Note {
   };
 }
 
+const syncNotesFeatureFlag = (value: boolean) => {
+  notesFeatureEnabled = value;
+};
+
+const handleNotesDisabled = () => {
+  syncNotesFeatureFlag(false);
+  notesCache = null;
+  throw new Error('Notes are disabled because no database is configured.');
+};
+
 // Utility functions for note management
 export const getAllNotes = async (): Promise<Note[]> => {
   try {
-    await ensureNotesFeatureStatus();
+
+    if (notesFeatureEnabled === null) {
+      try {
+        syncNotesFeatureFlag(true);
+      } catch {
+        syncNotesFeatureFlag(false);
+      }
+    }
+
     if (notesFeatureEnabled === false) {
       return [];
     }
@@ -95,7 +86,7 @@ export const getAllNotes = async (): Promise<Note[]> => {
     }
 
     const data = await response.json();
-    notesFeatureEnabled = true;
+    syncNotesFeatureFlag(true);
     const notes = data.notes.map(convertApiResponseToNote);
 
     // Update cache
@@ -114,7 +105,6 @@ export const getAllNotes = async (): Promise<Note[]> => {
 
 export const getNoteById = async (id: string): Promise<Note | undefined> => {
   try {
-    await ensureNotesFeatureStatus();
     if (notesFeatureEnabled === false) {
       return undefined;
     }
@@ -131,7 +121,7 @@ export const getNoteById = async (id: string): Promise<Note | undefined> => {
     }
 
     const data = await response.json();
-    notesFeatureEnabled = true;
+    syncNotesFeatureFlag(true);
     return convertApiResponseToNote(data.note);
   } catch (error) {
     console.error('Error fetching note:', error);
@@ -162,7 +152,6 @@ export const getNotesByTag = async (tag: string): Promise<Note[]> => {
 // API call to save a note (create or update)
 export const saveNote = async (note: Partial<Note>): Promise<Note> => {
   try {
-    await ensureNotesFeatureStatus();
     if (notesFeatureEnabled === false) {
       handleNotesDisabled();
     }
@@ -193,7 +182,7 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
       }
 
       const data = await response.json();
-      notesFeatureEnabled = true;
+      syncNotesFeatureFlag(true);
       const updatedNote = convertApiResponseToNote(data.note);
 
       // Invalidate cache
@@ -224,7 +213,7 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
       }
 
       const data = await response.json();
-      notesFeatureEnabled = true;
+      syncNotesFeatureFlag(true);
       const newNote = convertApiResponseToNote(data.note);
 
       // Invalidate cache
@@ -241,7 +230,6 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
 // API call to delete a note
 export const deleteNote = async (noteId: string): Promise<boolean> => {
   try {
-    await ensureNotesFeatureStatus();
     if (notesFeatureEnabled === false) {
       handleNotesDisabled();
     }
@@ -259,7 +247,6 @@ export const deleteNote = async (noteId: string): Promise<boolean> => {
 
     // Invalidate cache
     notesCache = null;
-    notesFeatureEnabled = true;
 
     return true;
   } catch (error) {
