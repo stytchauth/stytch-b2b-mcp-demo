@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotesService } from '@/lib/NotesService';
+import { DatabaseNotConfiguredError } from '@/lib/db';
 
 // GET /api/notes/[id] - Get a specific note
 export async function GET(
@@ -30,6 +31,13 @@ export async function GET(
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    if (error instanceof DatabaseNotConfiguredError) {
+      return NextResponse.json(
+        { error: 'Notes are disabled because no database is configured.' },
+        { status: 503 }
       );
     }
 
@@ -71,6 +79,13 @@ export async function PUT(
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    if (error instanceof DatabaseNotConfiguredError) {
+      return NextResponse.json(
+        { error: 'Notes are disabled because no database is configured.' },
+        { status: 503 }
       );
     }
 
@@ -119,6 +134,13 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    if (error instanceof DatabaseNotConfiguredError) {
+      return NextResponse.json(
+        { error: 'Notes are disabled because no database is configured.' },
+        { status: 503 }
       );
     }
 

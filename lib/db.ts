@@ -1,16 +1,30 @@
 import { Pool } from 'pg';
 
+const isProd = process.env.NODE_ENV === 'production';
+
+export class DatabaseNotConfiguredError extends Error {
+  constructor() {
+    super('Database is not configured. Set DATABASE_URL to enable notes.');
+    this.name = 'DatabaseNotConfiguredError';
+  }
+}
+
 // Database connection pool for Neon PostgreSQL
 let pool: Pool | null = null;
 
+export function isDatabaseConfigured(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
+
 export function getDb(): Pool {
+  if (!isDatabaseConfigured()) {
+    throw new DatabaseNotConfiguredError();
+  }
+
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl:
-        process.env.NODE_ENV === 'production'
-          ? { rejectUnauthorized: false }
-          : false,
+      ssl: isProd ? { rejectUnauthorized: false } : false,
     });
   }
   return pool;
@@ -18,6 +32,10 @@ export function getDb(): Pool {
 
 // Initialize database tables if they don't exist
 export async function initializeDatabase(): Promise<void> {
+  if (!isDatabaseConfigured()) {
+    throw new DatabaseNotConfiguredError();
+  }
+
   const db = getDb();
 
   try {

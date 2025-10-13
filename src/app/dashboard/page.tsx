@@ -22,6 +22,7 @@ import {
   getFavoriteNotes,
   Note,
   clearNotesCache,
+  notesEnabled,
 } from '@/lib/notesData';
 
 export default function DashboardPage() {
@@ -36,6 +37,7 @@ export default function DashboardPage() {
   // Get actual notes data
   const [recentNotes, setRecentNotes] = useState<Note[]>([]);
   const [favoriteNotes, setFavoriteNotes] = useState<Note[]>([]);
+  const [notesDisabled, setNotesDisabled] = useState(false);
 
   // Track the current organization ID to detect changes
   const previousOrgIdRef = useRef<string | null>(null);
@@ -49,8 +51,15 @@ export default function DashboardPage() {
         ]);
         setRecentNotes(recent);
         setFavoriteNotes(favorites);
+        setNotesDisabled(!notesEnabled());
       } catch (error) {
         console.error('Error loading notes:', error);
+        if (
+          error instanceof Error &&
+          error.message.includes('Notes are disabled')
+        ) {
+          setNotesDisabled(true);
+        }
       }
     };
 
@@ -72,11 +81,21 @@ export default function DashboardPage() {
       previousOrgIdRef.current = currentOrgId;
 
       // Load notes if we don't have any or if organization changed
-      if (recentNotes.length === 0 && favoriteNotes.length === 0) {
+      if (
+        !notesDisabled &&
+        recentNotes.length === 0 &&
+        favoriteNotes.length === 0
+      ) {
         loadNotes();
       }
     }
-  }, [session, organization, recentNotes.length, favoriteNotes.length]);
+  }, [
+    session,
+    organization,
+    recentNotes.length,
+    favoriteNotes.length,
+    notesDisabled,
+  ]);
 
   // Handle redirect when session is lost - use useEffect to avoid React warning
   useEffect(() => {
@@ -117,16 +136,30 @@ export default function DashboardPage() {
                     className="w-full mt-4"
                     onClick={async () => {
                       try {
+                        if (notesDisabled) {
+                          alert(
+                            'Notes are disabled because no database is configured.'
+                          );
+                          return;
+                        }
+
                         const response = await fetch('/api/notes/new', {
                           method: 'POST',
                         });
 
                         if (!response.ok) {
-                          const errorData = await response.json();
-                          console.error('API error:', errorData);
-                          alert(
-                            `Failed to create note: ${errorData.error || 'Unknown error'}`
-                          );
+                          if (response.status === 503) {
+                            setNotesDisabled(true);
+                            alert(
+                              'Notes are disabled because no database is configured.'
+                            );
+                          } else {
+                            const errorData = await response.json();
+                            console.error('API error:', errorData);
+                            alert(
+                              `Failed to create note: ${errorData.error || 'Unknown error'}`
+                            );
+                          }
                           return;
                         }
 
@@ -134,9 +167,19 @@ export default function DashboardPage() {
                         router.push(`/notes?id=${data.note.id}`);
                       } catch (error) {
                         console.error('Error creating new note:', error);
-                        alert(
-                          `Error creating note: ${error instanceof Error ? error.message : 'Unknown error'}`
-                        );
+                        if (
+                          error instanceof Error &&
+                          error.message.includes('Notes are disabled')
+                        ) {
+                          setNotesDisabled(true);
+                          alert(
+                            'Notes are disabled because no database is configured.'
+                          );
+                        } else {
+                          alert(
+                            `Error creating note: ${error instanceof Error ? error.message : 'Unknown error'}`
+                          );
+                        }
                       }
                     }}
                   >
@@ -197,30 +240,38 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {recentNotes.map(note => (
-                      <li key={note.id}>
-                        <Link
-                          href={`/notes?id=${note.id}`}
-                          className="text-sm hover:underline block"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="truncate">{note.title}</span>
-                              {note.visibility === 'private' && (
-                                <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                              )}
-                            </div>
-                            <span className="text-xs text-muted-foreground flex-shrink-0">
-                              {note.updatedAt.toLocaleDateString()}
-                            </span>
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                    {recentNotes.length === 0 && (
+                    {notesDisabled ? (
                       <li className="text-sm text-muted-foreground">
-                        No recent notes
+                        Notes disabled (no database configured)
                       </li>
+                    ) : (
+                      <>
+                        {recentNotes.map(note => (
+                          <li key={note.id}>
+                            <Link
+                              href={`/notes?id=${note.id}`}
+                              className="text-sm hover:underline block"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="truncate">{note.title}</span>
+                                  {note.visibility === 'private' && (
+                                    <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                                  )}
+                                </div>
+                                <span className="text-xs text-muted-foreground flex-shrink-0">
+                                  {note.updatedAt.toLocaleDateString()}
+                                </span>
+                              </div>
+                            </Link>
+                          </li>
+                        ))}
+                        {recentNotes.length === 0 && (
+                          <li className="text-sm text-muted-foreground">
+                            No recent notes
+                          </li>
+                        )}
+                      </>
                     )}
                   </ul>
                 </CardContent>
@@ -234,32 +285,40 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {favoriteNotes.map(note => (
-                      <li key={note.id}>
-                        <Link
-                          href={`/notes?id=${note.id}`}
-                          className="text-sm hover:underline block"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="truncate">{note.title}</span>
-                              {note.visibility === 'private' && (
-                                <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                              )}
-                            </div>
-                            {note.tags && note.tags.length > 0 && (
-                              <span className="text-xs text-muted-foreground flex-shrink-0">
-                                #{note.tags[0]}
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                    {favoriteNotes.length === 0 && (
+                    {notesDisabled ? (
                       <li className="text-sm text-muted-foreground">
-                        No favorite notes
+                        Notes disabled (no database configured)
                       </li>
+                    ) : (
+                      <>
+                        {favoriteNotes.map(note => (
+                          <li key={note.id}>
+                            <Link
+                              href={`/notes?id=${note.id}`}
+                              className="text-sm hover:underline block"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="truncate">{note.title}</span>
+                                  {note.visibility === 'private' && (
+                                    <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                                  )}
+                                </div>
+                                {note.tags && note.tags.length > 0 && (
+                                  <span className="text-xs text-muted-foreground flex-shrink-0">
+                                    #{note.tags[0]}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          </li>
+                        ))}
+                        {favoriteNotes.length === 0 && (
+                          <li className="text-sm text-muted-foreground">
+                            No favorite notes
+                          </li>
+                        )}
+                      </>
                     )}
                   </ul>
                 </CardContent>

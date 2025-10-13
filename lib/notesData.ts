@@ -16,10 +16,41 @@ let notesCache: Note[] | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 30000; // 30 seconds
 
+let notesFeatureEnabled: boolean | null = null;
+
+export const notesEnabled = () => notesFeatureEnabled !== false;
+
+async function ensureNotesFeatureStatus(): Promise<void> {
+  if (notesFeatureEnabled !== null) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/notes/status');
+
+    if (!response.ok) {
+      notesFeatureEnabled = false;
+      return;
+    }
+
+    const data = await response.json();
+    notesFeatureEnabled = data.enabled !== false;
+  } catch (error) {
+    console.error('Failed to determine notes feature status:', error);
+    notesFeatureEnabled = false;
+  }
+}
+
 // Function to clear the notes cache (useful when switching organizations)
 export const clearNotesCache = (): void => {
   notesCache = null;
   cacheTimestamp = 0;
+};
+
+const handleNotesDisabled = () => {
+  notesFeatureEnabled = false;
+  clearNotesCache();
+  throw new Error('Notes are disabled because no database is configured.');
 };
 
 // Helper function to convert API response to Note objects
@@ -41,6 +72,11 @@ function convertApiResponseToNote(apiNote: any): Note {
 // Utility functions for note management
 export const getAllNotes = async (): Promise<Note[]> => {
   try {
+    await ensureNotesFeatureStatus();
+    if (notesFeatureEnabled === false) {
+      return [];
+    }
+
     // Check cache first
     const now = Date.now();
     if (notesCache && now - cacheTimestamp < CACHE_DURATION) {
@@ -50,12 +86,16 @@ export const getAllNotes = async (): Promise<Note[]> => {
     const response = await fetch('/api/notes');
 
     if (!response.ok) {
+      if (response.status === 503) {
+        handleNotesDisabled();
+      }
       const errorText = await response.text();
       console.error('Notes API error:', errorText);
       throw new Error('Failed to fetch notes');
     }
 
     const data = await response.json();
+    notesFeatureEnabled = true;
     const notes = data.notes.map(convertApiResponseToNote);
 
     // Update cache
@@ -65,24 +105,39 @@ export const getAllNotes = async (): Promise<Note[]> => {
     return notes;
   } catch (error) {
     console.error('Error fetching notes:', error);
+    if (notesFeatureEnabled == null) {
+      throw error;
+    }
     return [];
   }
 };
 
 export const getNoteById = async (id: string): Promise<Note | undefined> => {
   try {
+    await ensureNotesFeatureStatus();
+    if (notesFeatureEnabled === false) {
+      return undefined;
+    }
+
     const response = await fetch(`/api/notes/${id}`);
     if (!response.ok) {
       if (response.status === 404) {
         return undefined;
       }
+      if (response.status === 503) {
+        handleNotesDisabled();
+      }
       throw new Error('Failed to fetch note');
     }
 
     const data = await response.json();
+    notesFeatureEnabled = true;
     return convertApiResponseToNote(data.note);
   } catch (error) {
     console.error('Error fetching note:', error);
+    if (notesFeatureEnabled == null) {
+      throw error;
+    }
     return undefined;
   }
 };
@@ -107,6 +162,11 @@ export const getNotesByTag = async (tag: string): Promise<Note[]> => {
 // API call to save a note (create or update)
 export const saveNote = async (note: Partial<Note>): Promise<Note> => {
   try {
+    await ensureNotesFeatureStatus();
+    if (notesFeatureEnabled === false) {
+      handleNotesDisabled();
+    }
+
     const isUpdate = !!note.id;
 
     if (isUpdate) {
@@ -126,10 +186,14 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
       });
 
       if (!response.ok) {
+        if (response.status === 503) {
+          handleNotesDisabled();
+        }
         throw new Error('Failed to update note');
       }
 
       const data = await response.json();
+      notesFeatureEnabled = true;
       const updatedNote = convertApiResponseToNote(data.note);
 
       // Invalidate cache
@@ -153,10 +217,14 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
       });
 
       if (!response.ok) {
+        if (response.status === 503) {
+          handleNotesDisabled();
+        }
         throw new Error('Failed to create note');
       }
 
       const data = await response.json();
+      notesFeatureEnabled = true;
       const newNote = convertApiResponseToNote(data.note);
 
       // Invalidate cache
@@ -173,20 +241,32 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
 // API call to delete a note
 export const deleteNote = async (noteId: string): Promise<boolean> => {
   try {
+    await ensureNotesFeatureStatus();
+    if (notesFeatureEnabled === false) {
+      handleNotesDisabled();
+    }
+
     const response = await fetch(`/api/notes/${noteId}`, {
       method: 'DELETE',
     });
 
     if (!response.ok) {
+      if (response.status === 503) {
+        handleNotesDisabled();
+      }
       throw new Error('Failed to delete note');
     }
 
     // Invalidate cache
     notesCache = null;
+    notesFeatureEnabled = true;
 
     return true;
   } catch (error) {
     console.error('Error deleting note:', error);
+    if (notesFeatureEnabled == null) {
+      throw error;
+    }
     throw error;
   }
 };

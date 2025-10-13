@@ -1,4 +1,10 @@
-import { getDb, initializeDatabase, dbRowToNote } from './db';
+import {
+  getDb,
+  initializeDatabase,
+  dbRowToNote,
+  isDatabaseConfigured,
+  DatabaseNotConfiguredError,
+} from './db';
 import { authenticateSession } from './auth';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types';
 
@@ -68,6 +74,9 @@ export class NotesService {
 
   // Get all notes accessible to the current user
   async getNotes() {
+    if (!isDatabaseConfigured()) {
+      throw new DatabaseNotConfiguredError();
+    }
     await initializeDatabase();
     const { member_id, organization_id } = this.ensureSessionInfo();
 
@@ -90,6 +99,9 @@ export class NotesService {
 
   // Get a specific note by ID
   async getNoteById(noteId: string) {
+    if (!isDatabaseConfigured()) {
+      throw new DatabaseNotConfiguredError();
+    }
     await initializeDatabase();
     const { member_id, organization_id } = this.ensureSessionInfo();
 
@@ -128,6 +140,9 @@ export class NotesService {
     is_favorite?: boolean;
     tags?: string[];
   }) {
+    if (!isDatabaseConfigured()) {
+      throw new DatabaseNotConfiguredError();
+    }
     await initializeDatabase();
     const { member_id, organization_id } = this.ensureSessionInfo();
 
@@ -173,6 +188,9 @@ export class NotesService {
       tags?: string[];
     }
   ) {
+    if (!isDatabaseConfigured()) {
+      throw new DatabaseNotConfiguredError();
+    }
     await initializeDatabase();
     const { member_id, organization_id } = this.ensureSessionInfo();
 

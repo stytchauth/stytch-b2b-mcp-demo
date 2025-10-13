@@ -43,7 +43,12 @@ import {
   useStytchOrganization,
 } from '@stytch/nextjs/b2b';
 import { useRouter } from 'next/navigation';
-import { getAllNotes, Note, clearNotesCache } from '@/lib/notesData';
+import {
+  getAllNotes,
+  Note,
+  clearNotesCache,
+  notesEnabled,
+} from '@/lib/notesData';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import OrgSwitcher from './OrgSwitcher';
 import CreateTeamModal from './CreateTeamModal';
@@ -69,6 +74,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
   const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
+  const [notesDisabled, setNotesDisabled] = useState(false);
 
   // Use notes context for sidebar
   const { recentNotes, setRecentNotes, addNote } = useNotes();
@@ -83,8 +89,12 @@ export function AppSidebar() {
         // Sort by most recently updated
         const sortedNotes = allNotes.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
         setRecentNotes(sortedNotes);
+        setNotesDisabled(!notesEnabled());
       } catch (error) {
         console.error('Error loading notes:', error);
+        if (error instanceof Error && error.message.includes('Notes are disabled')) {
+          setNotesDisabled(true);
+        }
       }
     };
 
@@ -105,11 +115,11 @@ export function AppSidebar() {
       previousOrgIdRef.current = currentOrgId;
 
       // Load notes if we don't have any or if organization changed
-      if (recentNotes.length === 0) {
+      if (!notesDisabled && recentNotes.length === 0) {
         loadAllNotes();
       }
     }
-  }, [session, organization, recentNotes.length, setRecentNotes]);
+  }, [session, organization, recentNotes.length, setRecentNotes, notesDisabled]);
 
   const handleLogOut = () => {
     stytch.session
@@ -213,16 +223,26 @@ export function AppSidebar() {
           <SidebarGroupAction
             onClick={async () => {
               try {
+                if (notesDisabled) {
+                  alert('Notes are disabled because no database is configured.');
+                  return;
+                }
+
                 const response = await fetch('/api/notes/new', {
                   method: 'POST',
                 });
 
                 if (!response.ok) {
+                  if (response.status === 503) {
+                    setNotesDisabled(true);
+                    alert('Notes are disabled because no database is configured.');
+                  }
                   console.error('Failed to create note');
                   return;
                 }
 
                 const data = await response.json();
+                setNotesDisabled(false);
 
                 // Convert API response to Note format and add to sidebar
                 const newNote: Note = {
@@ -243,6 +263,13 @@ export function AppSidebar() {
                 router.push(`/notes?id=${data.note.id}`);
               } catch (error) {
                 console.error('Error creating new note:', error);
+                if (
+                  error instanceof Error &&
+                  error.message.includes('Notes are disabled')
+                ) {
+                  setNotesDisabled(true);
+                  alert('Notes are disabled because no database is configured.');
+                }
               }
             }}
           >
@@ -250,36 +277,49 @@ export function AppSidebar() {
           </SidebarGroupAction>
           <SidebarGroupContent className="overflow-y-auto">
             <SidebarMenu>
-              {recentNotes.map(note => (
-                <SidebarMenuItem key={note.id}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={
-                      pathname === '/notes' &&
-                      new URLSearchParams(window.location.search).get('id') ===
-                        note.id
-                    }
-                    tooltip={note.title}
-                  >
-                    <Link href={`/notes?id=${note.id}`}>
-                      <FileText className="w-4 h-4" />
-                      <div className="flex items-center gap-1 flex-1 min-w-0">
-                        <span className="truncate">{note.title}</span>
-                        {note.visibility === 'private' && (
-                          <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                        )}
-                      </div>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              {recentNotes.length === 0 && (
+              {notesDisabled ? (
                 <SidebarMenuItem>
                   <SidebarMenuButton disabled>
                     <FileText className="w-4 h-4" />
-                    <span className="text-muted-foreground">No notes yet</span>
+                    <span className="text-muted-foreground">
+                      Notes disabled (no database configured)
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+              ) : (
+                <>
+                  {recentNotes.map(note => (
+                    <SidebarMenuItem key={note.id}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={
+                          pathname === '/notes' &&
+                          new URLSearchParams(window.location.search).get('id') ===
+                            note.id
+                        }
+                        tooltip={note.title}
+                      >
+                        <Link href={`/notes?id=${note.id}`}>
+                          <FileText className="w-4 h-4" />
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            <span className="truncate">{note.title}</span>
+                            {note.visibility === 'private' && (
+                              <Lock className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                            )}
+                          </div>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  {recentNotes.length === 0 && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton disabled>
+                        <FileText className="w-4 h-4" />
+                        <span className="text-muted-foreground">No notes yet</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
+                </>
               )}
             </SidebarMenu>
           </SidebarGroupContent>

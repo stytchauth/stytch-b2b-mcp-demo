@@ -1,119 +1,90 @@
-# B2B Demo App with Org Switcher
+## Stytch B2B MCP Demo
 
-## Overview
+### Overview
 
-This demo application demonstrates using Stytch B2B's pre-built UI components for both Login and Admin Portal (Member Management, Organization Settings, SSO and SCIM Configuration) along with a headless example of an Org Switcher.
+This Next.js App Router project demonstrates how to combine Stytch's B2B prebuilt components with custom experiences orchestrated through the Model Context Protocol (MCP).
 
-It's largely a fork of the Next.js B2B Quickstart.
+Key pieces of the demo include:
 
-The copy for the login component and the org switcher should be updated to reflect whatever terminology the prospect uses to refer to Organizations
+- Stytch B2B Discovery login rendered with `@stytch/nextjs`
+- The Admin Portal UI components – members, organization settings, SSO, and SCIM
+- A headless organization switcher that calls the Stytch session exchange API
+- A collaborative notes workspace backed by Neon/Postgres, exposed via an MCP server
 
-## TODO:
+### Architecture Snapshot
 
-- [ ] Currently the Org Switcher shows a "Create team" button that isn't hooked up to anything. Hook this up to a BE API call that calls `CreateOrganization` and `CreateMember` and _then_ completes the headless SessionExchange with the new `organization_id`
-- [ ] Handle step-up SSO when switching from an Organization that doesn't require SSO to one that does (this is the easiest one to demonsrate, since no UI required)
+- **Front end**: Next.js App Router with client-side Stytch hooks and server actions.
+- **Auth**: Stytch Discovery, plus session exchange for switching organizations and MCP token introspection.
+- **Notes feature**: CRUD API routes backed by Postgres (Neon). Notes are scoped to the active organization and stored via `lib/NotesService`.
+- **MCP integration**: `src/app/mcp/route.ts` hosts a Model Context Protocol server that exposes notes as MCP resources and tools so AI agents can read and write within the authenticated context.
+- **UI**: Tailwind-based dashboard with `AppSidebar`, `NotesEditor`, and Admin Portal embeds.
 
-## Set up
+### Prerequisites
 
-Follow the steps below to get this application fully functional and running using your own Stytch credentials.
+- Node.js 18+
+- Neon Postgres account (for persistence)
+- Stytch B2B project with MCP enabled
 
-### In the Stytch Dashboard
+### Local Setup
 
-1. Create a [Stytch](https://stytch.com/) account. Once your account is set up a Project called "My first project" will be automatically created for you.
+1. Install dependencies:
 
-2. Within your new Project, navigate to [SDK configuration](https://stytch.com/dashboard/sdk-configuration), and click **Enable SDK**.
-
-3. Navigate to [API Keys](https://stytch.com/dashboard/api-keys). You will need the `project_id`, `secret`, and `public_token` values found on this page later on.
-
-### Database Setup (Neon + Branch-based Development)
-
-This project uses a branch-based development workflow with Neon PostgreSQL. Each developer gets their own database branch for isolated development.
-
-#### Prerequisites
-
-1. **Install Neon CLI**: Follow the [Neon CLI installation guide](https://neon.com/docs/reference/cli-install)
-2. **Authenticate**: Run `neon auth` to log in to your Neon account
-3. **Set Project ID**: Set your Neon project ID as an environment variable:
    ```bash
-   export NEON_PROJECT_ID="your-project-id"
+   npm install
    ```
-   You can find your project ID by running `neon projects list` or in the Neon dashboard.
 
-#### Quick Setup (Automated)
+2. Create a `.env.local` file and set the required environment variables.
 
-```bash
-# Clone and install dependencies
-git clone https://github.com/stytchauth/stytch-b2b-nextjs-quickstart-example.git
-cd stytch-b2b-nextjs-quickstart-example
-npm i
+   ```env
+   STYTCH_PROJECT_ID=project-live-or-test-id
+   STYTCH_SECRET=b2b-secret
+   NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN=public-token
+   STYTCH_DOMAIN=https://test.stytch.com
+   DATABASE_URL=postgres://...
+   DATABASE_URL_UNPOOLED=postgres://...
+   ```
 
-# Create your personal development branch and get connection details
-npm run setup-dev
-```
+   The `scripts/setup-dev-branch.js` helper expects Neon CLI authentication and will append connection strings to `.env.local` when run.
 
-The setup script will:
+3. Initialize your database schema (creates the `notes` table):
 
-- Create a unique development branch for you
-- Write database configuration to your .env.local file
-- Set up database tables
+   ```bash
+   npm run migrate
+   ```
 
-#### Manual Setup (Alternative)
+   If you plan to demo without persistence, you can skip this step; the app detects a missing `DATABASE_URL` and disables note creation while keeping the rest of the UI functional.
 
-If you prefer to set up manually:
+4. Start the development server:
 
-```bash
-# Create your .env.local file
-touch .env.local
+   ```bash
+   npm run dev
+   ```
 
-# Create your own development branch
-neon branches create --project-id $NEON_PROJECT_ID --name dev-yourname --parent main
+   The app runs at http://localhost:3000.
 
-# Get connection string for your branch
-neon connection-string --project-id $NEON_PROJECT_ID --branch dev-yourname --database-name neondb --pooled
+### Demo Flow Highlights
 
-# Set up database tables
-DATABASE_URL="your-connection-string" npm run migrate
-```
+- Log in with email magic links, OAuth, or SSO. Discovery returns all memberships tied to the email.
+- Use the left rail to navigate dashboard content, members, org settings, SSO, and SCIM screens powered by the Admin Portal SDK.
+- The organization switcher shows all discovered orgs and can create a new org via the modal. Creation hits the `/api/organizations/create` route, then exchanges the session to the new org.
+- Notes in the sidebar and editor are organization-scoped. Switching orgs clears caches and reloads relevant notes when a database is configured; without a database the feature gracefully degrades to read-only messaging.
+- The MCP endpoint (`/mcp`) exposes each note as an MCP resource and provides tools for create/update/delete so AI assistants can collaborate on shared notes (requires a database connection).
 
-### Environment Configuration
+### MCP Usage
 
-Open `.env.local` in your editor and set the Stytch credentials from [API Keys](https://stytch.com/dashboard/api-keys), plus the database URLs from your branch setup:
+To interact with the MCP server you need an OAuth access token minted for the member. The `/mcp` route uses `withMcpAuth` to introspect the token via Stytch and map the subject + organization into the Notes service. Tools available include `createNote`, `updateNote`, `searchNotes`, and `deleteNote`.
 
-```env
-# Stytch Configuration
-STYTCH_PROJECT_ENV=test
-STYTCH_PROJECT_ID=project-test-00000000-0000-1234-abcd-abcdef1234
-STYTCH_SECRET=secret-test-12345678901234567890abcdabcd
-NEXT_PUBLIC_STYTCH_PUBLIC_TOKEN=public-token-test-abcd123-0000-0000-abcd-1234567abc
+### Scripts
 
-# Database Configuration
-DATABASE_URL=postgresql://your-branch-connection-string
-DATABASE_URL_UNPOOLED=postgresql://your-unpooled-connection-string
-```
+- `npm run migrate` – Run database migration script (idempotent table creation for notes).
+- `npm run setup-dev` – Optional Neon helper that creates a personal Postgres branch, writes connection strings to `.env.local`, and runs the migration.
 
-## Running locally
+### Production Considerations
 
-After completing all the set up steps above the application can be run with the command:
+- Replace the sample environment values with secrets from your Stytch project and managed database.
+- Restrict Admin Portal permissions by assigning custom roles in your Stytch dashboard.
+- Harden the `/api/organizations/create` route with additional validation and rate limits before using in production.
 
-```bash
-npm run dev
-```
+### Support
 
-The application will be available at [`http://localhost:3000`](http://localhost:3000).
-
-# Flows to explore
-
-- [ ] Authenticate and create a new Organization
-- [ ] Invite an alias of your email to the Organization in the "Members" tab
-- [ ] Enable Just-in-Time (JIT) Provisioning for your work email domain in the "Settings" tab, and set an Automatic Role Assignment to have all users from that domain automatically be assigned the Admin Role
-- [ ] In the [Roles & Permissions](https://stytch.com/dashboard/rbac) tab of the Stytch Dashboard, create a new `limited_admin` Role with the `update.info.name` and `update.info.slug` permissions for the `stytch.organization` Resource and log in as a Member with that Role. See how the Settings UI adjusts to account for their more limited permissions
-- [ ] Set up Enterprise SSO in the "SSO" tab (if you don't have admin access to a workforce IdP, you can create an [Okta Workforce Identity Cloud Developer Account](https://developer.okta.com/signup/) to test)
-- [ ] Configure SCIM provisioning in the "SCIM" tab and provision users individually or by groups. Create an automatic role assignment for a specific IdP group in the "Settings" tab
-
-# Next Steps
-
-This example app showcases a small portion of what you can accomplish with Stytch. Next, explore adding additional login methods, such as [OAuth](https://stytch.com/docs/b2b/guides/oauth/initial-setup) or [SSO](https://stytch.com/docs/b2b/guides/sso/initial-setup).
-
-# :question: Need support?
-
-Come join our [Slack community](https://stytch.com/docs/resources/support/overview) to speak directly with a Stytch auth expert!
+Need help? Reach us via the [Stytch Slack community](https://stytch.com/docs/resources/support/overview) or your Stytch solutions engineer.

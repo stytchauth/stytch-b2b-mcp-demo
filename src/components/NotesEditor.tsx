@@ -20,7 +20,12 @@ import {
   Lock,
   Users,
 } from 'lucide-react';
-import { Note, saveNote, deleteNote } from '@/lib/notesData';
+import {
+  Note,
+  saveNote,
+  deleteNote,
+  notesEnabled,
+} from '@/lib/notesData';
 import { useNotes } from '../contexts/NotesContext';
 
 interface NotesEditorProps {
@@ -39,6 +44,7 @@ export default function NotesEditor({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [notesDisabled, setNotesDisabled] = useState(false);
 
   // Use notes context to update sidebar
   const { updateNote, removeNote } = useNotes();
@@ -59,8 +65,17 @@ export default function NotesEditor({
     setHasUnsavedChanges(true);
   };
 
+  const handleNotesError = (error: unknown) => {
+    if (error instanceof Error && error.message.includes('Notes are disabled')) {
+      setNotesDisabled(true);
+      alert('Notes are read-only because no database is configured.');
+      return true;
+    }
+    return false;
+  };
+
   const handleSave = async () => {
-    if (!hasUnsavedChanges) return;
+    if (notesDisabled || !hasUnsavedChanges) return;
 
     setIsSaving(true);
     try {
@@ -71,53 +86,58 @@ export default function NotesEditor({
       setCurrentNote(updatedNote);
       setHasUnsavedChanges(false);
 
-      // Update the sidebar immediately with the saved note
       updateNote(updatedNote);
-
       onNoteUpdate?.(updatedNote);
     } catch (error) {
       console.error('Failed to save note:', error);
+      if (!handleNotesError(error)) {
+        alert('Failed to save note.');
+      }
     } finally {
       setIsSaving(false);
     }
   };
 
   const toggleFavorite = async () => {
+    if (notesDisabled) return;
+
     const updatedNote = { ...currentNote, isFavorite: !currentNote.isFavorite };
     setCurrentNote(updatedNote);
     try {
       const savedNote = await saveNote(updatedNote);
-
-      // Update the sidebar immediately
       updateNote(savedNote);
-
       onNoteUpdate?.(savedNote);
     } catch (error) {
       console.error('Failed to update favorite:', error);
-      setCurrentNote(currentNote);
+      if (!handleNotesError(error)) {
+        alert('Failed to update favorite.');
+        setCurrentNote(currentNote);
+      }
     }
   };
 
   const toggleVisibility = async () => {
+    if (notesDisabled) return;
+
     const newVisibility: 'private' | 'shared' =
       currentNote.visibility === 'private' ? 'shared' : 'private';
     const updatedNote = { ...currentNote, visibility: newVisibility };
     setCurrentNote(updatedNote);
     try {
       const savedNote = await saveNote(updatedNote);
-
-      // Update the sidebar immediately
       updateNote(savedNote);
-
       onNoteUpdate?.(savedNote);
     } catch (error) {
       console.error('Failed to update visibility:', error);
-      setCurrentNote(currentNote);
+      if (!handleNotesError(error)) {
+        alert('Failed to update visibility.');
+        setCurrentNote(currentNote);
+      }
     }
   };
 
   const toggleEditMode = () => {
-    if (readOnly) return;
+    if (readOnly || notesDisabled) return;
 
     if (isEditing && hasUnsavedChanges) {
       handleSave();
@@ -126,7 +146,7 @@ export default function NotesEditor({
   };
 
   const handleDelete = async () => {
-    if (readOnly) return;
+    if (readOnly || notesDisabled) return;
 
     const confirmed = window.confirm(
       'Are you sure you want to delete this note? This action cannot be undone.'
@@ -144,7 +164,9 @@ export default function NotesEditor({
       // Note deleted successfully - in a real app you might want to navigate away
     } catch (error) {
       console.error('Failed to delete note:', error);
-      alert('Failed to delete note. Please try again.');
+      if (!handleNotesError(error)) {
+        alert('Failed to delete note. Please try again.');
+      }
     } finally {
       setIsDeleting(false);
     }
@@ -197,7 +219,7 @@ export default function NotesEditor({
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          {!readOnly && (
+          {!readOnly && !notesDisabled && (
             <Button
               variant="ghost"
               size="sm"
@@ -218,29 +240,31 @@ export default function NotesEditor({
               )}
             </Button>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={isDeleting}
-                className="focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-              >
-                <MoreHorizontal className="w-5 h-5" />
-                <span className="sr-only">More options</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-red-600 focus:text-red-600"
-                disabled={readOnly || isDeleting}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {isDeleting ? 'Deleting...' : 'Delete note'}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!notesDisabled && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isDeleting}
+                  className="focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+                >
+                  <MoreHorizontal className="w-5 h-5" />
+                  <span className="sr-only">More options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={handleDelete}
+                  className="text-red-600 focus:text-red-600"
+                  disabled={readOnly || isDeleting}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {isDeleting ? 'Deleting...' : 'Delete note'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         <div
           className="absolute bottom-0 left-0 right-0 h-px bg-border"
