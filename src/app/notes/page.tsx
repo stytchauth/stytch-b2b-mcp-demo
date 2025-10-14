@@ -44,6 +44,12 @@ export default function NotesPage() {
         setNoNoteSelected(false);
         setLoadingError(false);
 
+        if (!notesEnabled()) {
+          setNotesDisabled(true);
+          setNote(null);
+          return;
+        }
+
         if (!noteId) {
           // No note ID provided, show available notes selection UI
           const allNotes = await getAllNotes();

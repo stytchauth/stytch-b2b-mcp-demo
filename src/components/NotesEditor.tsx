@@ -44,12 +44,13 @@ export default function NotesEditor({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [notesDisabled, setNotesDisabled] = useState(false);
+  const [notesDisabled, setNotesDisabled] = useState(!notesEnabled());
 
   // Use notes context to update sidebar
   const { updateNote, removeNote } = useNotes();
 
   useEffect(() => {
+    setNotesDisabled(!notesEnabled());
     setCurrentNote(note);
     setHasUnsavedChanges(false);
     setIsEditing(false);
@@ -75,7 +76,7 @@ export default function NotesEditor({
   };
 
   const handleSave = async () => {
-    if (notesDisabled || !hasUnsavedChanges) return;
+    if (notesDisabled || !hasUnsavedChanges || !notesEnabled()) return;
 
     setIsSaving(true);
     try {
@@ -99,7 +100,7 @@ export default function NotesEditor({
   };
 
   const toggleFavorite = async () => {
-    if (notesDisabled) return;
+    if (notesDisabled || !notesEnabled()) return;
 
     const updatedNote = { ...currentNote, isFavorite: !currentNote.isFavorite };
     setCurrentNote(updatedNote);
@@ -117,7 +118,7 @@ export default function NotesEditor({
   };
 
   const toggleVisibility = async () => {
-    if (notesDisabled) return;
+    if (notesDisabled || !notesEnabled()) return;
 
     const newVisibility: 'private' | 'shared' =
       currentNote.visibility === 'private' ? 'shared' : 'private';
@@ -137,7 +138,7 @@ export default function NotesEditor({
   };
 
   const toggleEditMode = () => {
-    if (readOnly || notesDisabled) return;
+    if (readOnly || notesDisabled || !notesEnabled()) return;
 
     if (isEditing && hasUnsavedChanges) {
       handleSave();
@@ -146,7 +147,7 @@ export default function NotesEditor({
   };
 
   const handleDelete = async () => {
-    if (readOnly || notesDisabled) return;
+    if (readOnly || notesDisabled || !notesEnabled()) return;
 
     const confirmed = window.confirm(
       'Are you sure you want to delete this note? This action cannot be undone.'

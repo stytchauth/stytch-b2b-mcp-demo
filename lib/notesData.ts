@@ -46,10 +46,19 @@ const syncNotesFeatureFlag = (value: boolean) => {
   notesFeatureEnabled = value;
 };
 
-const handleNotesDisabled = () => {
-  syncNotesFeatureFlag(false);
-  notesCache = null;
-  throw new Error('Notes are disabled because no database is configured.');
+const createFallbackNote = (note: Partial<Note>): Note => {
+  return {
+    id: note.id ?? 'unsaved-note',
+    title: note.title ?? 'Untitled',
+    content: note.content ?? '',
+    member_id: note.member_id ?? '',
+    organization_id: note.organization_id ?? '',
+    visibility: (note.visibility as 'private' | 'shared') ?? 'private',
+    is_favorite: note.isFavorite ?? false,
+    tags: note.tags ?? [],
+    createdAt: note.createdAt ?? new Date(),
+    updatedAt: note.updatedAt ?? new Date(),
+  } as Note;
 };
 
 // Utility functions for note management
@@ -78,10 +87,10 @@ export const getAllNotes = async (): Promise<Note[]> => {
 
     if (!response.ok) {
       if (response.status === 503) {
-        handleNotesDisabled();
+        syncNotesFeatureFlag(false);
+        return [];
       }
       const errorText = await response.text();
-      console.error('Notes API error:', errorText);
       throw new Error('Failed to fetch notes');
     }
 
@@ -99,6 +108,7 @@ export const getAllNotes = async (): Promise<Note[]> => {
     if (notesFeatureEnabled == null) {
       throw error;
     }
+    syncNotesFeatureFlag(false);
     return [];
   }
 };
@@ -115,7 +125,8 @@ export const getNoteById = async (id: string): Promise<Note | undefined> => {
         return undefined;
       }
       if (response.status === 503) {
-        handleNotesDisabled();
+        syncNotesFeatureFlag(false);
+        return undefined;
       }
       throw new Error('Failed to fetch note');
     }
@@ -128,6 +139,7 @@ export const getNoteById = async (id: string): Promise<Note | undefined> => {
     if (notesFeatureEnabled == null) {
       throw error;
     }
+    syncNotesFeatureFlag(false);
     return undefined;
   }
 };
@@ -153,7 +165,8 @@ export const getNotesByTag = async (tag: string): Promise<Note[]> => {
 export const saveNote = async (note: Partial<Note>): Promise<Note> => {
   try {
     if (notesFeatureEnabled === false) {
-      handleNotesDisabled();
+      console.warn('saveNote skipped because notes are disabled.');
+      return createFallbackNote(note);
     }
 
     const isUpdate = !!note.id;
@@ -176,7 +189,8 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
 
       if (!response.ok) {
         if (response.status === 503) {
-          handleNotesDisabled();
+          syncNotesFeatureFlag(false);
+          return createFallbackNote(note);
         }
         throw new Error('Failed to update note');
       }
@@ -207,7 +221,8 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
 
       if (!response.ok) {
         if (response.status === 503) {
-          handleNotesDisabled();
+          syncNotesFeatureFlag(false);
+          return createFallbackNote(note);
         }
         throw new Error('Failed to create note');
       }
@@ -223,6 +238,10 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
     }
   } catch (error) {
     console.error('Error saving note:', error);
+    if (notesFeatureEnabled == null) {
+      throw error;
+    }
+    syncNotesFeatureFlag(false);
     throw error;
   }
 };
@@ -231,7 +250,8 @@ export const saveNote = async (note: Partial<Note>): Promise<Note> => {
 export const deleteNote = async (noteId: string): Promise<boolean> => {
   try {
     if (notesFeatureEnabled === false) {
-      handleNotesDisabled();
+      console.warn('deleteNote skipped because notes are disabled.');
+      return false;
     }
 
     const response = await fetch(`/api/notes/${noteId}`, {
@@ -240,7 +260,8 @@ export const deleteNote = async (noteId: string): Promise<boolean> => {
 
     if (!response.ok) {
       if (response.status === 503) {
-        handleNotesDisabled();
+        syncNotesFeatureFlag(false);
+        return false;
       }
       throw new Error('Failed to delete note');
     }
@@ -254,6 +275,7 @@ export const deleteNote = async (noteId: string): Promise<boolean> => {
     if (notesFeatureEnabled == null) {
       throw error;
     }
+    syncNotesFeatureFlag(false);
     throw error;
   }
 };
