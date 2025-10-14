@@ -49,13 +49,8 @@ const syncNotesFeatureFlag = (value: boolean) => {
 // Utility functions for note management
 export const getAllNotes = async (): Promise<Note[]> => {
   try {
-
     if (notesFeatureEnabled === null) {
-      try {
-        syncNotesFeatureFlag(true);
-      } catch {
-        syncNotesFeatureFlag(false);
-      }
+      syncNotesFeatureFlag(true);
     }
 
     if (notesFeatureEnabled === false) {

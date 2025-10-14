@@ -33,7 +33,7 @@ Key pieces of the demo include:
    npm install
    ```
 
-2. Create a `.env.local` file and set the required environment variables.
+2. Create a `.env.local` file and set the required environment variables. Note you can omit the DB for testing, the notes functionality won't work but you can test the auth features.
 
    ```env
    STYTCH_PROJECT_ID=project-live-or-test-id
@@ -83,7 +83,6 @@ To interact with the MCP server you need an OAuth access token minted for the me
 
 - Replace the sample environment values with secrets from your Stytch project and managed database.
 - Restrict Admin Portal permissions by assigning custom roles in your Stytch dashboard.
-- Harden the `/api/organizations/create` route with additional validation and rate limits before using in production.
 
 ### Support
 
