@@ -50,14 +50,6 @@ const syncNotesFeatureFlag = (value: boolean) => {
 export const getAllNotes = async (): Promise<Note[]> => {
   try {
 
-    if (notesFeatureEnabled === null) {
-      try {
-        syncNotesFeatureFlag(true);
-      } catch {
-        syncNotesFeatureFlag(false);
-      }
-    }
-
     if (notesFeatureEnabled === false) {
       return [];
     }
