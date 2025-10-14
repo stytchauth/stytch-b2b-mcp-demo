@@ -115,7 +115,7 @@ export function AppSidebar() {
       previousOrgIdRef.current = currentOrgId;
 
       // Load notes if we don't have any or if organization changed
-      if (!notesDisabled && recentNotes.length === 0 && notesEnabled()) {
+      if (!notesDisabled && recentNotes.length === 0) {
         loadAllNotes();
       }
     }

@@ -76,7 +76,7 @@ export default function NotesEditor({
   };
 
   const handleSave = async () => {
-    if (notesDisabled || !hasUnsavedChanges || !notesEnabled()) return;
+    if (notesDisabled || !hasUnsavedChanges) return;
 
     setIsSaving(true);
     try {
@@ -100,7 +100,7 @@ export default function NotesEditor({
   };
 
   const toggleFavorite = async () => {
-    if (notesDisabled || !notesEnabled()) return;
+    if (notesDisabled) return;
 
     const updatedNote = { ...currentNote, isFavorite: !currentNote.isFavorite };
     setCurrentNote(updatedNote);
@@ -118,7 +118,7 @@ export default function NotesEditor({
   };
 
   const toggleVisibility = async () => {
-    if (notesDisabled || !notesEnabled()) return;
+    if (notesDisabled) return;
 
     const newVisibility: 'private' | 'shared' =
       currentNote.visibility === 'private' ? 'shared' : 'private';
@@ -138,7 +138,7 @@ export default function NotesEditor({
   };
 
   const toggleEditMode = () => {
-    if (readOnly || notesDisabled || !notesEnabled()) return;
+    if (readOnly || notesDisabled) return;
 
     if (isEditing && hasUnsavedChanges) {
       handleSave();
@@ -147,7 +147,7 @@ export default function NotesEditor({
   };
 
   const handleDelete = async () => {
-    if (readOnly || notesDisabled || !notesEnabled()) return;
+    if (readOnly || notesDisabled) return;
 
     const confirmed = window.confirm(
       'Are you sure you want to delete this note? This action cannot be undone.'

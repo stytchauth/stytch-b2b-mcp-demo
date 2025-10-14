@@ -45,17 +45,13 @@ export default function DashboardPage() {
   useEffect(() => {
     const loadNotes = async () => {
       try {
-        if (!notesEnabled()) {
-          setNotesDisabled(true);
-          return;
-        }
-
         const [recent, favorites] = await Promise.all([
           getRecentNotes(3),
           getFavoriteNotes(),
         ]);
         setRecentNotes(recent);
         setFavoriteNotes(favorites);
+        setNotesDisabled(!notesEnabled());
       } catch (error) {
         console.error('Error loading notes:', error);
         if (
@@ -87,7 +83,6 @@ export default function DashboardPage() {
       // Load notes if we don't have any or if organization changed
       if (
         !notesDisabled &&
-        notesEnabled() &&
         recentNotes.length === 0 &&
         favoriteNotes.length === 0
       ) {
@@ -141,7 +136,7 @@ export default function DashboardPage() {
                     className="w-full mt-4"
                     onClick={async () => {
                       try {
-                        if (notesDisabled || !notesEnabled()) {
+                        if (notesDisabled) {
                           alert(
                             'Notes are disabled because no database is configured.'
                           );
@@ -153,7 +148,7 @@ export default function DashboardPage() {
                         });
 
                         if (!response.ok) {
-                          if (response.status === 503 || !notesEnabled()) {
+                          if (response.status === 503) {
                             setNotesDisabled(true);
                             alert(
                               'Notes are disabled because no database is configured.'
