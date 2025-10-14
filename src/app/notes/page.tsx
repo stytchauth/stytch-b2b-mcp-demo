@@ -8,6 +8,7 @@ import {
   getAllNotes,
   Note,
   clearNotesCache,
+  notesEnabled,
 } from '../../../lib/notesData';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useMemo, useState, useEffect, useRef } from 'react';
@@ -31,6 +32,7 @@ export default function NotesPage() {
   const [noNoteSelected, setNoNoteSelected] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
   const [availableNotes, setAvailableNotes] = useState<Note[]>([]);
+  const [notesDisabled, setNotesDisabled] = useState(false);
 
   // Track the current organization ID to detect changes
   const previousOrgIdRef = useRef<string | null>(null);
@@ -42,10 +44,17 @@ export default function NotesPage() {
         setNoNoteSelected(false);
         setLoadingError(false);
 
+        if (!notesEnabled()) {
+          setNotesDisabled(true);
+          setNote(null);
+          return;
+        }
+
         if (!noteId) {
           // No note ID provided, show available notes selection UI
           const allNotes = await getAllNotes();
           setAvailableNotes(allNotes);
+          setNotesDisabled(!notesEnabled());
           setNoNoteSelected(true);
           setNote(null);
           return;
@@ -60,9 +69,17 @@ export default function NotesPage() {
         } else {
           setNote(foundNote);
         }
+        setNotesDisabled(!notesEnabled());
       } catch (error) {
         console.error('Error loading note:', error);
-        setLoadingError(true);
+        if (
+          error instanceof Error &&
+          error.message.includes('Notes are disabled')
+        ) {
+          setNotesDisabled(true);
+        } else {
+          setLoadingError(true);
+        }
         setNote(null);
       }
     };
@@ -83,6 +100,7 @@ export default function NotesPage() {
         setNoNoteSelected(false);
         setLoadingError(false);
         setAvailableNotes([]);
+        setNotesDisabled(false);
       }
 
       // Update the tracked organization ID
@@ -123,11 +141,12 @@ export default function NotesPage() {
                   Welcome to Your Notes! 📝
                 </h1>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Please select a note from the sidebar or create a new one to
-                  get started.
+                  {notesDisabled
+                    ? 'Notes are read-only because no database is configured. You can still view existing notes in other organizations once a database is connected.'
+                    : 'Please select a note from the sidebar or create a new one to get started.'}
                 </p>
 
-                {availableNotes.length > 0 && (
+                {!notesDisabled && availableNotes.length > 0 && (
                   <div className="mb-6 w-full max-w-md mx-auto">
                     <h3 className="text-base font-medium text-gray-900 mb-2">
                       Recent Notes
@@ -157,12 +176,14 @@ export default function NotesPage() {
                 )}
 
                 <div className="flex gap-3 justify-center">
-                  <Button asChild>
-                    <Link href="/dashboard">
-                      <PlusCircle className="w-4 h-4 mr-2" />
-                      Create New Note
-                    </Link>
-                  </Button>
+                  {!notesDisabled && (
+                    <Button asChild>
+                      <Link href="/dashboard">
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Create New Note
+                      </Link>
+                    </Button>
+                  )}
                   <Button variant="outline" asChild>
                     <Link href="/dashboard">
                       <Home className="w-4 h-4 mr-2" />
@@ -198,9 +219,9 @@ export default function NotesPage() {
                   Note Not Found
                 </h1>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  The note with ID &quot;{noteId}&quot; could not be found. It
-                  may have been deleted or you might not have permission to view
-                  it.
+                  {notesDisabled
+                    ? 'Notes are unavailable because no database is configured for this environment.'
+                    : `The note with ID "${noteId}" could not be found. It may have been deleted or you might not have permission to view it.`}
                 </p>
                 <div className="flex gap-3 justify-center">
                   <Button asChild>
@@ -244,13 +265,16 @@ export default function NotesPage() {
                   Error Loading Note
                 </h1>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  There was an error loading this note. Please check your
-                  connection and try again.
+                  {notesDisabled
+                    ? 'Notes are disabled because no database is configured. Connect a database and refresh to edit notes.'
+                    : 'There was an error loading this note. Please check your connection and try again.'}
                 </p>
                 <div className="flex gap-3 justify-center">
-                  <Button onClick={() => window.location.reload()}>
-                    Try Again
-                  </Button>
+                  {!notesDisabled && (
+                    <Button onClick={() => window.location.reload()}>
+                      Try Again
+                    </Button>
+                  )}
                   <Button variant="outline" asChild>
                     <Link href="/dashboard">
                       <Home className="w-4 h-4 mr-2" />
@@ -276,7 +300,7 @@ export default function NotesPage() {
             <header className="flex items-center p-4 md:p-6 pb-0">
               <SidebarTrigger className="md:hidden mr-2" />
             </header>
-            <div className="flex-1"></div>
+            <div className="flex-1" />
           </main>
         </SidebarInset>
       </>

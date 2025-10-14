@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { NotesService } from '@/lib/NotesService';
+import { DatabaseNotConfiguredError } from '@/lib/db';
 
 // POST /api/notes/new - Create a new empty note and return its ID
 export async function POST(request: NextRequest) {
@@ -26,6 +27,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    if (error instanceof DatabaseNotConfiguredError) {
+      return NextResponse.json(
+        { error: 'Notes are disabled because no database is configured.' },
+        { status: 503 }
       );
     }
 
