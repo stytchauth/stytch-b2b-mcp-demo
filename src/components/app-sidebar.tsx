@@ -89,7 +89,7 @@ export function AppSidebar() {
         // Sort by most recently updated
         const sortedNotes = allNotes.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
         setRecentNotes(sortedNotes);
-        setNotesDisabled(!notesEnabled());
+        setNotesDisabled(!notesEnabled() || allNotes.length === 0);
       } catch (error) {
         console.error('Error loading notes:', error);
         if (error instanceof Error && error.message.includes('Notes are disabled')) {
