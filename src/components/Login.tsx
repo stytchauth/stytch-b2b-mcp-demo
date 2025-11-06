@@ -61,7 +61,6 @@ const Login = ({ returnTo = null }: LoginProps) => {
         callbacks={{
           onEvent: event => {
             if (event.type === StytchEventType.AuthenticateFlowComplete) {
-              console.log('Login: Auth complete, returnTo =', returnTo);
               router.replace(returnTo || '/dashboard');
             }
           },
