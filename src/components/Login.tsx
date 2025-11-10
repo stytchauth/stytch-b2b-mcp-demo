@@ -11,13 +11,6 @@ import {
 } from '@/lib/stytchConfig';
 import PageLayout from './PageLayout';
 
-/*
- * Login configures and renders the StytchLogin component which is a prebuilt UI component for auth powered by Stytch.
- *
- * This component accepts style, config, and callbacks props. To learn more about possible options review the documentation at
- * https://stytch.com/docs/b2b/sdks/ui-config
- */
-
 interface LoginProps {
   returnTo?: string | null;
 }

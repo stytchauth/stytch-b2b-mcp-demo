@@ -16,11 +16,6 @@ export default function OAuthAuthorizationPage() {
       const currentPath = encodeURIComponent(
         window.location.pathname + window.location.search
       );
-      console.log(
-        'OAuthAuthorize: Redirecting to login with returnTo =',
-        currentPath
-      );
-      console.log('OAuthAuthorize: Full URL =', window.location.href);
       router.push(`/authenticate?returnTo=${currentPath}`);
     }
   }, [isInitialized, session, router]);

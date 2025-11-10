@@ -13,6 +13,7 @@ import {
   Shield,
   Grid,
   Lock,
+  Plug,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -55,6 +56,7 @@ import CreateTeamModal from './CreateTeamModal';
 import { useNotes } from '../contexts/NotesContext';
 
 const settingsItems = [
+  { name: 'Connections', href: '/connections', icon: <Plug className="w-4 h-4" /> },
   { name: 'Members', href: '/members', icon: <Users className="w-4 h-4" /> },
   {
     name: 'Organization',
