@@ -40,6 +40,7 @@ const Login = ({ returnTo = null }: LoginProps) => {
       ...discoveryConfig.oauthOptions,
       discoveryRedirectURL: buildDiscoveryRedirectURL(),
     },
+    dfppaUrl: 'auth.notelydemo.com',
   };
 
   return (
