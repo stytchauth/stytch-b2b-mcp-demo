@@ -3,9 +3,7 @@ import { createStytchB2BUIClient } from '@stytch/nextjs/b2b/ui';
 import { ReactNode } from 'react';
 
 const stytchB2BSDKOptions = {
-    endpointOptions: {
-        dfppaDomain: 'auth.notelydemo.com',
-    },
+      dfppaUrl: 'auth.notelydemo.com',
 };
 
 // We initialize the Stytch client using our project's public token which can be found in the Stytch dashboard
