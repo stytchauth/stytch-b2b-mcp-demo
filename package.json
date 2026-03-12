@@ -22,7 +22,7 @@
     "@stytch/nextjs": "^21.16.0",
     "@stytch/vanilla-js": "^5.42.0",
     "@tailwindcss/typography": "^0.5.16",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.19.33",
     "@types/pg": "^8.15.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
