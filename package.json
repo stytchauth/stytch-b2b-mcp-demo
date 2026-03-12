@@ -18,7 +18,7 @@
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-tooltip": "^1.2.7",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@stytch/nextjs": "^21.16.0",
     "@stytch/vanilla-js": "^5.42.0",
     "@tailwindcss/typography": "^0.5.16",
